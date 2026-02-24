@@ -12,8 +12,6 @@
     --gray-800: #343A40;
     --text-main: #212529;
     --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    --bubble-me: var(--primary-color);
-    --bubble-other: #E9ECEF;
 }
 
 * {
@@ -29,7 +27,6 @@ body {
     color: var(--text-main);
     line-height: 1.6;
     overflow: hidden;
-    /* 모바일 앱 느낌을 위해 바디 스크롤 억제 */
 }
 
 .app-container {
@@ -55,10 +52,19 @@ body {
     display: none !important;
 }
 
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--white);
+    z-index: 100;
+}
+
 /* Header */
 .header {
-    margin-top: 40px;
-    margin-bottom: 40px;
+    margin: 40px 0;
     text-align: center;
 }
 
@@ -101,7 +107,6 @@ label {
     border: 1px solid var(--gray-300);
     border-radius: 12px;
     outline: none;
-    transition: border-color 0.2s;
 }
 
 #nickname-input:focus {
@@ -132,21 +137,7 @@ label {
     border-color: var(--primary-color);
 }
 
-.city-card h3 {
-    font-size: 18px;
-    font-weight: 700;
-}
-
-.city-card p {
-    font-size: 13px;
-    color: var(--gray-600);
-}
-
-.city-card i {
-    color: var(--gray-300);
-}
-
-/* Chat Header */
+/* Board UI */
 .chat-header {
     display: flex;
     align-items: center;
@@ -156,14 +147,6 @@ label {
     position: sticky;
     top: 0;
     z-index: 10;
-}
-
-.icon-btn {
-    background: none;
-    border: none;
-    font-size: 18px;
-    padding: 8px;
-    cursor: pointer;
 }
 
 .header-info {
@@ -181,116 +164,109 @@ label {
     color: var(--primary-color);
 }
 
+.icon-btn {
+    background: none;
+    border: none;
+    font-size: 18px;
+    padding: 8px;
+    cursor: pointer;
+}
+
 .text-btn {
     background: none;
     border: none;
     color: var(--gray-600);
+    font-size: 15px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.text-btn.highlight {
+    color: var(--primary-color);
+}
+
+.write-trigger-btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
     font-size: 14px;
+    font-weight: 700;
     cursor: pointer;
 }
 
-/* Chat View */
-#chat-view {
-    padding: 0;
-}
-
-.message-container {
+.post-container {
     flex: 1;
-    padding: 20px;
+    padding: 16px;
     display: flex;
     flex-direction: column;
     gap: 16px;
-    overflow-y: auto;
     background-color: var(--gray-100);
+    overflow-y: auto;
 }
 
-/* Bubble Styles */
-.message {
-    max-width: 80%;
-    display: flex;
-    flex-direction: column;
+/* Post Card Styles */
+.post-card {
+    background-color: var(--white);
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    border: 1px solid var(--gray-200);
 }
 
-.msg-info {
+.post-card h4 {
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--gray-800);
+}
+
+.post-card p {
+    font-size: 14px;
+    color: var(--gray-600);
+    white-space: pre-wrap;
+    margin-bottom: 12px;
+}
+
+.post-meta {
     font-size: 12px;
     color: var(--gray-600);
-    margin-bottom: 4px;
-    margin-left: 4px;
-}
-
-.bubble {
-    padding: 10px 16px;
-    border-radius: 18px;
-    font-size: 15px;
-    word-break: break-all;
-}
-
-/* Other's Message */
-.message.other {
-    align-self: flex-start;
-}
-
-.message.other .bubble {
-    background-color: var(--white);
-    color: var(--gray-800);
-    border-bottom-left-radius: 4px;
-}
-
-/* My Message */
-.message.me {
-    align-self: flex-end;
-}
-
-.message.me .msg-info {
-    text-align: right;
-    margin-right: 4px;
-}
-
-.message.me .bubble {
-    background-color: var(--primary-color);
-    color: var(--white);
-    border-bottom-right-radius: 4px;
-}
-
-/* Chat Footer */
-.chat-footer {
-    padding: 16px 20px;
-    background-color: var(--white);
-    border-top: 1px solid var(--gray-200);
-}
-
-.input-wrapper {
     display: flex;
-    background-color: var(--gray-100);
-    border-radius: 24px;
-    padding: 4px 4px 4px 16px;
-    align-items: center;
+    justify-content: space-between;
 }
 
-#message-input {
-    flex: 1;
+.post-meta .meta-nickname {
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+/* Write Form */
+.write-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 24px;
+}
+
+.write-form input {
+    font-size: 18px;
+    font-weight: 700;
     border: none;
-    background: none;
-    padding: 8px 0;
-    font-size: 15px;
+    border-bottom: 2px solid var(--gray-200);
+    padding: 12px 0;
     outline: none;
+    width: 100%;
 }
 
-.send-btn {
-    width: 36px;
-    height: 36px;
-    background-color: var(--primary-color);
-    color: var(--white);
+.write-form input:focus {
+    border-bottom-color: var(--primary-color);
+}
+
+.write-form textarea {
+    font-size: 16px;
     border: none;
-    border-radius: 50%;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: opacity 0.2s;
-}
-
-.send-btn:disabled {
-    opacity: 0.5;
-    cursor: default;
+    resize: none;
+    outline: none;
+    width: 100%;
 }

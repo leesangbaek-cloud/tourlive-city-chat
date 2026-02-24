@@ -4,18 +4,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tour Buddy Lite | 투어라이브 도시별 실시간 채팅</title>
+    <title>Tour Buddy Lite | 실시간 도시별 게시판</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 
 <body>
     <div id="app" class="app-container">
-        <!-- 로비 화면 -->
+        <!-- 1. 로비 화면 -->
         <div id="lobby-view" class="view">
             <header class="header">
                 <h1 class="logo">Tour Buddy<span>Lite</span></h1>
-                <p class="subtitle">로그인 없이 즐기는 도시별 실시간 채팅</p>
+                <p class="subtitle">실시간 도시별 정보 공유 게시판</p>
             </header>
 
             <main class="main-content">
@@ -25,7 +25,7 @@
                 </div>
 
                 <div class="city-section">
-                    <label>채팅할 도시 선택</label>
+                    <label>도시 선택</label>
                     <div class="city-grid">
                         <div class="city-card" data-city="Paris">
                             <div class="city-info">
@@ -60,29 +60,35 @@
             </main>
         </div>
 
-        <!-- 채팅 화면 (초기 숨김) -->
-        <div id="chat-view" class="view hidden">
+        <!-- 2. 게시판 목록 화면 -->
+        <div id="board-view" class="view hidden">
             <header class="chat-header">
-                <button id="back-btn" class="icon-btn"><i class="fas fa-arrow-left"></i></button>
+                <button id="back-to-lobby" class="icon-btn"><i class="fas fa-arrow-left"></i></button>
                 <div class="header-info">
                     <h2 id="current-city-name">도시이름</h2>
-                    <p id="participant-count">실시간 참여 중</p>
+                    <p>실시간 게시판</p>
                 </div>
-                <div class="header-actions">
-                    <button id="exit-btn" class="text-btn">방 나가기</button>
-                </div>
+                <button id="write-btn" class="write-trigger-btn">글쓰기</button>
             </header>
 
-            <div id="message-container" class="message-container">
-                <!-- 메시지들이 여기에 동적으로 추가됨 -->
+            <div id="post-container" class="post-container">
+                <!-- 게시글 카드가 여기에 동적으로 추가됨 -->
             </div>
+        </div>
 
-            <footer class="chat-footer">
-                <div class="input-wrapper">
-                    <input type="text" id="message-input" placeholder="메시지를 입력하세요..." autocomplete="off">
-                    <button id="send-btn" class="send-btn"><i class="fas fa-paper-plane"></i></button>
+        <!-- 3. 글쓰기 화면 (모달 또는 오버레이 형태) -->
+        <div id="write-view" class="view hidden overlay">
+            <header class="chat-header">
+                <button id="close-write" class="icon-btn"><i class="fas fa-times"></i></button>
+                <div class="header-info">
+                    <h2>새 게시글 작성</h2>
                 </div>
-            </footer>
+                <button id="submit-post" class="text-btn highlight">등록</button>
+            </header>
+            <main class="write-form">
+                <input type="text" id="post-title" placeholder="제목을 입력하세요 (최대 20자)" maxlength="20">
+                <textarea id="post-content" placeholder="내용을 입력하세요 (여행 팁, 동행 구함 등)" rows="10"></textarea>
+            </main>
         </div>
     </div>
 
