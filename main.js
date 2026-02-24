@@ -1,159 +1,157 @@
-// Supabase Configuration
+// 1. Supabase 초기 설정
 const SUPABASE_URL = 'https://vxfkpbbdikxoqoohuyen.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_7Zkb2m4twe2X1i8NMmIViA_RAYE5bYS'; // 기존 키 재사용
+const SUPABASE_KEY = 'sb_publishable_7Zkb2m4twe2X1i8NMmIViA_RAYE5bYS';
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// State
+// 2. 상태 관리
 let currentNickname = '';
 let currentCity = '';
-let chatChannel = null;
+let boardChannel = null;
 
-// DOM Elements
-const lobbyView = document.getElementById('lobby-view');
-const chatView = document.getElementById('chat-view');
-const nicknameInput = document.getElementById('nickname-input');
-const messageInput = document.getElementById('message-input');
-const messageContainer = document.getElementById('message-container');
-const sendBtn = document.getElementById('send-btn');
-const backBtn = document.getElementById('back-btn');
-const exitBtn = document.getElementById('exit-btn');
-const currentCityNameDisplay = document.getElementById('current-city-name');
-const cityCards = document.querySelectorAll('.city-card');
+// 3. DOM 요소 추출
+const views = {
+    lobby: document.getElementById('lobby-view'),
+    board: document.getElementById('board-view'),
+    write: document.getElementById('write-view')
+};
 
-// --- Navigation Logic ---
+const elements = {
+    nicknameInput: document.getElementById('nickname-input'),
+    cityNameDisplay: document.getElementById('current-city-name'),
+    postContainer: document.getElementById('post-container'),
+    postTitle: document.getElementById('post-title'),
+    postContent: document.getElementById('post-content'),
+    cityCards: document.querySelectorAll('.city-card')
+};
 
-function showLobby() {
-    if (chatChannel) {
-        chatChannel.unsubscribe();
-        chatChannel = null;
-    }
-    chatView.classList.add('hidden');
-    lobbyView.classList.remove('hidden');
-    currentCity = '';
+// --- 화면 전환 로직 ---
+
+function switchView(viewName) {
+    Object.keys(views).forEach(key => {
+        views[key].classList.add('hidden');
+    });
+    views[viewName].classList.remove('hidden');
 }
 
-async function joinChat(cityName) {
-    currentNickname = nicknameInput.value.trim() || '익명 여행자';
+async function enterCityBoard(cityName) {
+    currentNickname = elements.nicknameInput.value.trim() || '익명 여행자';
     currentCity = cityName;
 
-    // UI Update
-    currentCityNameDisplay.textContent = getCityDisplayName(cityName);
-    messageContainer.innerHTML = ''; // Clear previous messages
-    lobbyView.classList.add('hidden');
-    chatView.classList.remove('hidden');
+    // UI 초기화
+    elements.cityNameDisplay.textContent = getCityDisplayName(cityName);
+    elements.postContainer.innerHTML = '';
+    switchView('board');
 
-    // Load existing messages
-    await fetchMessages();
-
-    // Subscribe to Realtime
-    subscribeToCity();
+    // 게시글 불러오기 및 실시간 구독
+    await fetchPosts();
+    subscribeToBoard();
 }
 
 function getCityDisplayName(cityId) {
-    const names = {
-        'Paris': '파리',
-        'Rome': '로마',
-        'Florence': '피렌체',
-        'Barcelona': '바르셀로나'
-    };
+    const names = { 'Paris': '파리', 'Rome': '로마', 'Florence': '피렌체', 'Barcelona': '바르셀로나' };
     return names[cityId] || cityId;
 }
 
-// --- Chat Logic ---
+// --- 게시판 데이터 로직 ---
 
-async function fetchMessages() {
+async function fetchPosts() {
     const { data, error } = await supabaseClient
-        .from('city_chats')
+        .from('city_posts')
         .select('*')
         .eq('city_name', currentCity)
-        .order('created_at', { ascending: true })
-        .limit(50);
+        .order('created_at', { ascending: false }); // 최신순
 
     if (error) {
-        console.error('Error fetching messages:', error);
+        console.error('게시글 로드 실패:', error);
         return;
     }
 
-    data.forEach(msg => appendMessage(msg));
+    data.forEach(post => prependPost(post));
 }
 
-function subscribeToCity() {
-    chatChannel = supabaseClient.channel(`public:city_chats:city_name=eq.${currentCity}`)
+function subscribeToBoard() {
+    // 기존 구독 해제
+    if (boardChannel) boardChannel.unsubscribe();
+
+    boardChannel = supabaseClient.channel(`realtime:city_posts:${currentCity}`)
         .on('postgres_changes', {
             event: 'INSERT',
             schema: 'public',
-            table: 'city_chats',
+            table: 'city_posts',
             filter: `city_name=eq.${currentCity}`
         }, payload => {
-            appendMessage(payload.new);
+            prependPost(payload.new);
         })
         .subscribe();
 }
 
-async function sendMessage() {
-    const text = messageInput.value.trim();
-    if (!text) return;
+async function savePost() {
+    const title = elements.postTitle.value.trim();
+    const content = elements.postContent.value.trim();
 
-    messageInput.value = '';
-    sendBtn.disabled = true;
+    if (!title || !content) {
+        alert('제목과 내용을 입력해주세요.');
+        return;
+    }
+
+    // 등록 버튼 비활성화 (선택 사항)
+    document.getElementById('submit-post').disabled = true;
 
     const { error } = await supabaseClient
-        .from('city_chats')
+        .from('city_posts')
         .insert([{
             city_name: currentCity,
             nickname: currentNickname,
-            message: text
+            title: title,
+            content: content
         }]);
 
     if (error) {
-        console.error('Error sending message:', error);
-        alert('메시지 전송에 실패했습니다.');
+        console.error('게시글 등록 실패:', error);
+        alert('등록에 실패했습니다.');
+    } else {
+        // 성공 시 폼 초기화 및 목록으로 복귀
+        elements.postTitle.value = '';
+        elements.postContent.value = '';
+        switchView('board');
     }
 
-    sendBtn.disabled = false;
-    messageInput.focus();
+    document.getElementById('submit-post').disabled = false;
 }
 
-function appendMessage(msg) {
-    const isMe = msg.nickname === currentNickname;
-    const messageEl = document.createElement('div');
-    messageEl.className = `message ${isMe ? 'me' : 'other'}`;
-
-    const infoEl = document.createElement('div');
-    infoEl.className = 'msg-info';
-    infoEl.textContent = `${msg.nickname} • ${new Date(msg.created_at).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}`;
-
-    const bubbleEl = document.createElement('div');
-    bubbleEl.className = 'bubble';
-    bubbleEl.textContent = msg.message;
-
-    messageEl.appendChild(infoEl);
-    messageEl.appendChild(bubbleEl);
-    messageContainer.appendChild(messageEl);
-
-    // Scroll to bottom
-    messageContainer.scrollTop = messageContainer.scrollHeight;
+function prependPost(post) {
+    const card = document.createElement('div');
+    card.className = 'post-card';
+    card.innerHTML = `
+        <h4>${post.title}</h4>
+        <p>${post.content}</p>
+        <div class="post-meta">
+            <span class="meta-nickname">${post.nickname}</span>
+            <span class="meta-time">${new Date(post.created_at).toLocaleDateString()}</span>
+        </div>
+    `;
+    // 최신 글이 위로 오도록 prepend
+    elements.postContainer.prepend(card);
 }
 
-// --- Event Listeners ---
+// --- 이벤트 리스너 ---
 
-cityCards.forEach(card => {
-    card.addEventListener('click', () => {
-        const city = card.dataset.city;
-        joinChat(city);
-    });
+// 로비: 도시 선택
+elements.cityCards.forEach(card => {
+    card.addEventListener('click', () => enterCityBoard(card.dataset.city));
 });
 
-sendBtn.addEventListener('click', sendMessage);
-
-messageInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') sendMessage();
+// 게시판: 뒤로가기
+document.getElementById('back-to-lobby').addEventListener('click', () => {
+    if (boardChannel) boardChannel.unsubscribe();
+    switchView('lobby');
 });
 
-backBtn.addEventListener('click', showLobby);
-exitBtn.addEventListener('click', showLobby);
+// 게시판: 작성 버튼
+document.getElementById('write-btn').addEventListener('click', () => switchView('write'));
 
-// Initialize with a simple animation effect (Optional)
-window.addEventListener('load', () => {
-    document.body.style.opacity = '1';
-});
+// 작성: 취소 버튼
+document.getElementById('close-write').addEventListener('click', () => switchView('board'));
+
+// 작성: 등록 버튼
+document.getElementById('submit-post').addEventListener('click', savePost);
