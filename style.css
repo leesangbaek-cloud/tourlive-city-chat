@@ -327,12 +327,15 @@ label {
 .comment-date {
     font-size: 10px;
     color: var(--gray-600);
+    margin-right: 24px;
+    /* 삭제 버튼과의 간격 확보 */
 }
 
 .comment-content {
     color: var(--gray-800);
     word-break: break-all;
-    padding-right: 20px;
+    padding-right: 28px;
+    /* 내용이 삭제 버튼과 겹치지 않게 패딩 추가 */
 }
 
 .comment-delete-btn {
@@ -341,14 +344,17 @@ label {
     right: 10px;
     background: none;
     border: none;
-    color: var(--gray-300);
+    color: #ffb3b3;
+    /* 기본 상태를 연한 빨간색으로 변경 */
     cursor: pointer;
     font-size: 12px;
-    transition: color 0.2s;
+    transition: all 0.2s;
 }
 
 .comment-delete-btn:hover {
-    color: var(--primary-color);
+    color: #ff4d4d;
+    /* 호버 시 진한 빨간색 */
+    transform: scale(1.1);
 }
 
 .comment-input-wrapper {
