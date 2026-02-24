@@ -64,10 +64,55 @@ async function updateExchangeRateFromAPI() {
     }
 }
 
+async function logUsage(currencyCode) {
+    try {
+        // 1. 익명 ID 생성 또는 가져오기 (누가)
+        let anonId = localStorage.getItem('tourlive_anon_id');
+        if (!anonId) {
+            anonId = 'user_' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('tourlive_anon_id', anonId);
+        }
+
+        // 2. 위치 정보 가져오기 (어디서) - 세션당 한 번만 가져오도록 캐싱 가능
+        let locationData = sessionStorage.getItem('user_location');
+        if (!locationData) {
+            try {
+                const res = await fetch('https://ipapi.co/json/');
+                const json = await res.json();
+                locationData = JSON.stringify({
+                    ip: json.ip,
+                    city: json.city,
+                    country: json.country_name
+                });
+                sessionStorage.setItem('user_location', locationData);
+            } catch (e) {
+                locationData = JSON.stringify({ ip: 'unknown', city: 'unknown', country: 'unknown' });
+            }
+        }
+        const loc = JSON.parse(locationData);
+
+        // 3. Supabase에 로그 저장
+        await supabaseClient.from('usage_logs').insert([{
+            anonymous_id: anonId,
+            currency_code: currencyCode,
+            ip_address: loc.ip,
+            location: `${loc.city}, ${loc.country}`,
+            device_info: navigator.userAgent
+        }]);
+
+        console.log('Usage logged:', currencyCode);
+    } catch (error) {
+        console.error('Logging Error:', error);
+    }
+}
+
 async function fetchExchangeRate() {
     const selectedCurrency = currencySelect.value;
     rateInfo.textContent = '환율 정보를 불러오는 중...';
     console.log(`Fetching rate for: ${selectedCurrency}`);
+
+    // 로그 남기기 (통화 변경 시마다)
+    logUsage(selectedCurrency);
 
     try {
         const { data, error } = await supabaseClient
