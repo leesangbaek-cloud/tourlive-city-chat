@@ -7,6 +7,7 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let currentNickname = '';
 let currentCity = '';
 let boardChannel = null;
+let myPostIds = JSON.parse(localStorage.getItem('my_post_ids') || '[]');
 
 // 3. DOM 요소 추출
 const views = {
@@ -66,7 +67,7 @@ async function fetchPosts() {
         return;
     }
 
-    data.forEach(post => prependPost(post));
+    data.forEach(post => appendPost(post));
 }
 
 function subscribeToBoard() {
@@ -80,7 +81,14 @@ function subscribeToBoard() {
             table: 'city_posts',
             filter: `city_name=eq.${currentCity}`
         }, payload => {
-            prependPost(payload.new);
+            appendPost(payload.new);
+        })
+        .on('postgres_changes', {
+            event: 'DELETE',
+            schema: 'public',
+            table: 'city_posts'
+        }, payload => {
+            removePostFromDOM(payload.old.id);
         })
         .subscribe();
 }
@@ -97,20 +105,24 @@ async function savePost() {
     // 등록 버튼 비활성화 (선택 사항)
     document.getElementById('submit-post').disabled = true;
 
-    const { error } = await supabaseClient
+    const { data, error } = await supabaseClient
         .from('city_posts')
         .insert([{
             city_name: currentCity,
             nickname: currentNickname,
             title: title,
             content: content
-        }]);
+        }])
+        .select();
 
     if (error) {
         console.error('게시글 등록 실패:', error);
         alert('등록에 실패했습니다.');
-    } else {
-        // 성공 시 폼 초기화 및 목록으로 복귀
+    } else if (data && data[0]) {
+        // 내 글 ID 저장
+        myPostIds.push(data[0].id);
+        localStorage.setItem('my_post_ids', JSON.stringify(myPostIds));
+
         elements.postTitle.value = '';
         elements.postContent.value = '';
         switchView('board');
@@ -119,10 +131,30 @@ async function savePost() {
     document.getElementById('submit-post').disabled = false;
 }
 
-function prependPost(post) {
+async function deletePost(postId) {
+    if (!confirm('정말 이 게시글을 삭제하시겠습니까?')) return;
+
+    const { error } = await supabaseClient
+        .from('city_posts')
+        .delete()
+        .eq('id', postId);
+
+    if (error) {
+        console.error('삭제 실패:', error);
+        alert('삭제에 실패했습니다.');
+    }
+}
+
+function appendPost(post) {
+    // 이미 존재하는 글인지 확인 (중복 방지)
+    if (document.getElementById(`post-${post.id}`)) return;
+
+    const isMine = myPostIds.includes(post.id);
     const card = document.createElement('div');
     card.className = 'post-card';
+    card.id = `post-${post.id}`;
     card.innerHTML = `
+        ${isMine ? `<button class="delete-btn" onclick="deletePost('${post.id}')"><i class="fas fa-trash-can"></i></button>` : ''}
         <h4>${post.title}</h4>
         <p>${post.content}</p>
         <div class="post-meta">
@@ -132,6 +164,11 @@ function prependPost(post) {
     `;
     // 최신 글이 위로 오도록 prepend
     elements.postContainer.prepend(card);
+}
+
+function removePostFromDOM(postId) {
+    const el = document.getElementById(`post-${postId}`);
+    if (el) el.remove();
 }
 
 // --- 이벤트 리스너 ---
