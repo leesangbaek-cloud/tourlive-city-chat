@@ -4,49 +4,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TourLive 실시간 환율 계산기</title>
+    <title>Tour Buddy Lite | 투어라이브 도시별 실시간 채팅</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 
 <body>
-    <div class="container">
-        <div class="card">
-            <h1 class="title">실시간 환율 계산기</h1>
-            <p class="subtitle">투어라이브(TourLive) 사용자를 위한<br>전 세계 실시간 환율 정보</p>
+    <div id="app" class="app-container">
+        <!-- 로비 화면 -->
+        <div id="lobby-view" class="view">
+            <header class="header">
+                <h1 class="logo">Tour Buddy<span>Lite</span></h1>
+                <p class="subtitle">로그인 없이 즐기는 도시별 실시간 채팅</p>
+            </header>
 
-            <div class="currency-selector">
-                <select id="currencySelect">
-                    <option value="EUR" selected>유로 (EUR)</option>
-                    <option value="USD">미국 달러 (USD)</option>
-                    <option value="JPY">일본 엔 (JPY)</option>
-                    <option value="CNY">중국 위안 (CNY)</option>
-                    <option value="HKD">홍콩 달러 (HKD)</option>
-                    <option value="SGD">싱가포르 달러 (SGD)</option>
-                    <option value="MYR">말레이시아 링킷 (MYR)</option>
-                    <option value="TWD">대만 달러 (TWD)</option>
-                    <option value="THB">태국 바트 (THB)</option>
-                    <option value="VND">베트남 동 (VND)</option>
-                    <option value="PHP">필리핀 페소 (PHP)</option>
-                    <option value="GBP">영국 파운드 (GBP)</option>
-                    <option value="CHF">스위스 프랑 (CHF)</option>
-                    <option value="AUD">호주 달러 (AUD)</option>
-                    <option value="CAD">캐나다 달러 (CAD)</option>
-                </select>
+            <main class="main-content">
+                <div class="input-section">
+                    <label for="nickname-input">닉네임 설정</label>
+                    <input type="text" id="nickname-input" placeholder="사용할 닉네임을 입력하세요" maxlength="10">
+                </div>
+
+                <div class="city-section">
+                    <label>채팅할 도시 선택</label>
+                    <div class="city-grid">
+                        <div class="city-card" data-city="Paris">
+                            <div class="city-info">
+                                <h3>파리</h3>
+                                <p>Paris</p>
+                            </div>
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                        <div class="city-card" data-city="Rome">
+                            <div class="city-info">
+                                <h3>로마</h3>
+                                <p>Rome</p>
+                            </div>
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                        <div class="city-card" data-city="Florence">
+                            <div class="city-info">
+                                <h3>피렌체</h3>
+                                <p>Florence</p>
+                            </div>
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                        <div class="city-card" data-city="Barcelona">
+                            <div class="city-info">
+                                <h3>바르셀로나</h3>
+                                <p>Barcelona</p>
+                            </div>
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- 채팅 화면 (초기 숨김) -->
+        <div id="chat-view" class="view hidden">
+            <header class="chat-header">
+                <button id="back-btn" class="icon-btn"><i class="fas fa-arrow-left"></i></button>
+                <div class="header-info">
+                    <h2 id="current-city-name">도시이름</h2>
+                    <p id="participant-count">실시간 참여 중</p>
+                </div>
+                <div class="header-actions">
+                    <button id="exit-btn" class="text-btn">방 나가기</button>
+                </div>
+            </header>
+
+            <div id="message-container" class="message-container">
+                <!-- 메시지들이 여기에 동적으로 추가됨 -->
             </div>
 
-            <div class="input-group">
-                <input type="number" id="baseInput" placeholder="0" step="0.01" min="0">
-                <span id="currencyUnit" class="unit">€</span>
-            </div>
-
-            <div class="result-area">
-                <p id="resultText">금액을 입력해주세요</p>
-                <p id="rateInfo" class="rate-info">환율 정보를 불러오는 중...</p>
-            </div>
-
-            <button id="convertBtn">투어라이브 앱으로 돌아가기</button>
+            <footer class="chat-footer">
+                <div class="input-wrapper">
+                    <input type="text" id="message-input" placeholder="메시지를 입력하세요..." autocomplete="off">
+                    <button id="send-btn" class="send-btn"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </footer>
         </div>
     </div>
+
+    <!-- Supabase JS SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="main.js"></script>
 </body>
