@@ -7,7 +7,9 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let currentNickname = '';
 let currentCity = '';
 let boardChannel = null;
+let commentChannel = null;
 let myPostIds = JSON.parse(localStorage.getItem('my_post_ids') || '[]');
+let myCommentIds = JSON.parse(localStorage.getItem('my_comment_ids') || '[]');
 
 // 3. DOM 요소 추출
 const views = {
@@ -46,6 +48,7 @@ async function enterCityBoard(cityName) {
     // 게시글 불러오기 및 실시간 구독
     await fetchPosts();
     subscribeToBoard();
+    subscribeToComments();
 }
 
 function getCityDisplayName(cityId) {
@@ -89,6 +92,27 @@ function subscribeToBoard() {
             table: 'city_posts'
         }, payload => {
             removePostFromDOM(payload.old.id);
+        })
+        .subscribe();
+}
+
+function subscribeToComments() {
+    if (commentChannel) commentChannel.unsubscribe();
+
+    commentChannel = supabaseClient.channel('realtime:city_comments')
+        .on('postgres_changes', {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'city_comments'
+        }, payload => {
+            renderComment(payload.new);
+        })
+        .on('postgres_changes', {
+            event: 'DELETE',
+            schema: 'public',
+            table: 'city_comments'
+        }, payload => {
+            removeCommentFromDOM(payload.old.id);
         })
         .subscribe();
 }
@@ -145,6 +169,64 @@ async function deletePost(postId) {
     }
 }
 
+async function saveComment(postId) {
+    const input = document.querySelector(`#post-${postId} .comment-input`);
+    const content = input.value.trim();
+
+    if (!content) return;
+
+    const { data, error } = await supabaseClient
+        .from('city_comments')
+        .insert([{
+            post_id: postId,
+            nickname: currentNickname,
+            content: content
+        }])
+        .select();
+
+    if (error) {
+        console.error('댓글 등록 실패:', error);
+        alert('댓글 등록에 실패했습니다.');
+    } else if (data && data[0]) {
+        myCommentIds.push(data[0].id);
+        localStorage.setItem('my_comment_ids', JSON.stringify(myCommentIds));
+        input.value = '';
+    }
+}
+
+async function deleteComment(commentId) {
+    if (!confirm('댓글을 삭제하시겠습니까?')) return;
+
+    const { error } = await supabaseClient
+        .from('city_comments')
+        .delete()
+        .eq('id', commentId);
+
+    if (error) {
+        console.error('댓글 삭제 실패:', error);
+        alert('삭제에 실패했습니다.');
+    }
+}
+
+async function fetchComments(postId) {
+    const { data, error } = await supabaseClient
+        .from('city_comments')
+        .select('*')
+        .eq('post_id', postId)
+        .order('created_at', { ascending: true });
+
+    if (error) {
+        console.error('댓글 로드 실패:', error);
+        return;
+    }
+
+    const container = document.querySelector(`#post-${postId} .comment-list`);
+    if (container) {
+        container.innerHTML = '';
+        data.forEach(comment => renderComment(comment));
+    }
+}
+
 function appendPost(post) {
     // 이미 존재하는 글인지 확인 (중복 방지)
     if (document.getElementById(`post-${post.id}`)) return;
@@ -161,9 +243,48 @@ function appendPost(post) {
             <span class="meta-nickname">${post.nickname}</span>
             <span class="meta-time">${new Date(post.created_at).toLocaleDateString()}</span>
         </div>
+        <div class="comment-section">
+            <div class="comment-list"></div>
+            <div class="comment-input-wrapper">
+                <input type="text" class="comment-input" placeholder="댓글을 입력하세요..." onkeypress="if(event.key==='Enter') saveComment('${post.id}')">
+                <button class="comment-submit-btn" onclick="saveComment('${post.id}')">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
     `;
     // 최신 글이 위로 오도록 prepend
     elements.postContainer.prepend(card);
+
+    // 댓글 불러오기
+    fetchComments(post.id);
+}
+
+function renderComment(comment) {
+    const postEl = document.getElementById(`post-${comment.post_id}`);
+    if (!postEl) return;
+
+    const container = postEl.querySelector('.comment-list');
+    if (!container || document.getElementById(`comment-${comment.id}`)) return;
+
+    const isMine = myCommentIds.includes(comment.id);
+    const item = document.createElement('div');
+    item.className = 'comment-item';
+    item.id = `comment-${comment.id}`;
+    item.innerHTML = `
+        <div class="comment-header">
+            <span class="comment-nickname">${comment.nickname}</span>
+            <span class="comment-date">${new Date(comment.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+        </div>
+        <div class="comment-content">${comment.content}</div>
+        ${isMine ? `<button class="comment-delete-btn" onclick="deleteComment('${comment.id}')"><i class="fas fa-trash-can"></i></button>` : ''}
+    `;
+    container.appendChild(item);
+}
+
+function removeCommentFromDOM(commentId) {
+    const el = document.getElementById(`comment-${commentId}`);
+    if (el) el.remove();
 }
 
 function removePostFromDOM(postId) {
@@ -181,6 +302,7 @@ elements.cityCards.forEach(card => {
 // 게시판: 뒤로가기
 document.getElementById('back-to-lobby').addEventListener('click', () => {
     if (boardChannel) boardChannel.unsubscribe();
+    if (commentChannel) commentChannel.unsubscribe();
     switchView('lobby');
 });
 
