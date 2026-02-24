@@ -111,7 +111,7 @@ async function fetchExchangeRate() {
     rateInfo.textContent = '환율 정보를 불러오는 중...';
     console.log(`Fetching rate for: ${selectedCurrency}`);
 
-    // 로그 남기기 (통화 변경 시마다)
+    // 로그 남기기
     logUsage(selectedCurrency);
 
     try {
@@ -121,33 +121,38 @@ async function fetchExchangeRate() {
             .ilike('currency_code', selectedCurrency)
             .single();
 
-        if (error) {
-            console.error('Supabase Error:', error);
-            throw error;
+        let finalData = data;
+
+        // 1. 데이터가 없거나 1시간 이상 오래된 경우 즉시 업데이트
+        const hourInMs = 60 * 60 * 1000;
+        const isOld = data && (new Date() - new Date(data.updated_at) > hourInMs);
+
+        if (!data || isOld) {
+            console.log(isOld ? 'Data is stale. Syncing...' : 'No data found. Syncing...');
+            await updateExchangeRateFromAPI();
+
+            // 업데이트 후 다시 조회
+            const { data: newData, error: newError } = await supabaseClient
+                .from('exchange_rates')
+                .select('*')
+                .ilike('currency_code', selectedCurrency)
+                .single();
+
+            if (!newError) finalData = newData;
         }
 
-        if (data) {
-            console.log('Received data:', data);
-
-            // 데이터가 1시간 이상 지났으면 백그라운드에서 동기화 실행
-            const lastUpdate = new Date(data.updated_at);
-            const hourInMs = 60 * 60 * 1000;
-            if (new Date() - lastUpdate > hourInMs) {
-                updateExchangeRateFromAPI();
-            }
-
-            currentRate = data.rate;
-            rateInfo.textContent = `현재 환율: 1 ${selectedCurrency} = ${currentRate.toLocaleString()}원 (기준: ${lastUpdate.toLocaleString('ko-KR')})`;
+        if (finalData) {
+            console.log('Final data to display:', finalData);
+            currentRate = finalData.rate;
+            const updateTime = new Date(finalData.updated_at);
+            rateInfo.textContent = `현재 환율: 1 ${selectedCurrency} = ${currentRate.toLocaleString()}원 (기준: ${updateTime.toLocaleString('ko-KR')})`;
             calculateResult();
         } else {
-            throw new Error(`'${selectedCurrency}'에 대한 환율 데이터가 테이블에 없습니다.`);
+            throw new Error(`'${selectedCurrency}' 정보를 가져올 수 없습니다.`);
         }
     } catch (error) {
         console.error('Fetch Error:', error);
-        rateInfo.textContent = `오류: ${error.message || '환율 정보를 불러오지 못했습니다.'}`;
-
-        // 데이터가 없으면 즉시 동기화 시도
-        updateExchangeRateFromAPI().then(() => fetchExchangeRate());
+        rateInfo.textContent = `오류: 환율 정보를 동기화하는 데 실패했습니다. 다시 시도해 주세요.`;
     }
 }
 
