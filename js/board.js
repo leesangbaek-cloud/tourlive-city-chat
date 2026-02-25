@@ -1,6 +1,6 @@
 import { supabaseClient } from './supabaseClient.js';
 import { elements, switchView, getCityDisplayName } from './ui.js';
-import { authState } from './auth.js';
+import { authState, setNickname } from './auth.js';
 
 export let currentCity = '';
 export let boardChannel = null;
@@ -9,6 +9,9 @@ export let myPostIds = JSON.parse(localStorage.getItem('my_post_ids') || '[]');
 export let myCommentIds = JSON.parse(localStorage.getItem('my_comment_ids') || '[]');
 
 export async function enterCityBoard(cityName) {
+    // 닉네임 설정 (입력값 없으면 기본값 사용)
+    setNickname(elements.nicknameInput.value.trim());
+
     currentCity = cityName;
     elements.cityNameDisplay.textContent = getCityDisplayName(cityName);
     elements.postContainer.innerHTML = '';

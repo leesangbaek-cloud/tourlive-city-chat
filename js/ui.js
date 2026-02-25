@@ -1,14 +1,10 @@
 export const views = {
-    login: document.getElementById('login-view'),
     lobby: document.getElementById('lobby-view'),
     board: document.getElementById('board-view'),
     write: document.getElementById('write-view')
 };
 
 export const elements = {
-    emailInput: document.getElementById('email-input'),
-    emailSection: document.getElementById('email-section'),
-    sendOtpBtn: document.getElementById('send-otp-btn'),
     nicknameInput: document.getElementById('nickname-input'),
     cityNameDisplay: document.getElementById('current-city-name'),
     postContainer: document.getElementById('post-container'),
@@ -18,8 +14,7 @@ export const elements = {
     backToLobbyBtn: document.getElementById('back-to-lobby'),
     writeTriggerBtn: document.getElementById('write-btn'),
     closeWriteBtn: document.getElementById('close-write'),
-    submitPostBtn: document.getElementById('submit-post'),
-    statusMsg: document.getElementById('status-msg')
+    submitPostBtn: document.getElementById('submit-post')
 };
 
 export function switchView(viewName) {
