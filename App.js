@@ -3,6 +3,8 @@ import { initAuth, sendMagicLink } from './js/auth.js';
 import { enterCityBoard, boardChannel, commentChannel, deletePost, saveComment, deleteComment, handleVote } from './js/board.js';
 import { savePost } from './js/write.js';
 
+import { authState } from './js/auth.js';
+
 // --- 전역 브릿지 (HTML onclick/onkeypress 대응) ---
 window.app = {
     deletePost,
@@ -18,6 +20,7 @@ elements.magicLinkBtn.addEventListener('click', sendMagicLink);
 
 // 로그인: 게스트 입장 (임시)
 elements.guestLoginBtn.addEventListener('click', () => {
+    authState.isGuest = true;
     switchView('welcome');
 });
 

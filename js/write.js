@@ -4,6 +4,10 @@ import { currentCity, myPostIds } from './board.js';
 import { authState } from './auth.js';
 
 export async function savePost() {
+    if (authState.isGuest) {
+        alert('로그인이 필요한 기능입니다.');
+        return;
+    }
     const title = elements.postTitle.value.trim();
     const content = elements.postContent.value.trim();
 

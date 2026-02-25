@@ -3,7 +3,8 @@ import { elements, switchView } from './ui.js';
 
 export const authState = {
     currentNickname: '익명 여행자',
-    user: null
+    user: null,
+    isGuest: false
 };
 
 export function setNickname(name) {
@@ -14,6 +15,7 @@ export async function initAuth() {
     supabaseClient.auth.onAuthStateChange((event, session) => {
         if (session) {
             authState.user = session.user;
+            authState.isGuest = false;
             // 닉네임 입력란에 이메일을 이용한 기본값 제안
             const defaultNick = session.user.email.split('@')[0];
             if (!elements.nicknameInput.value) {
@@ -29,6 +31,7 @@ export async function initAuth() {
     const { data: { session } } = await supabaseClient.auth.getSession();
     if (session) {
         authState.user = session.user;
+        authState.isGuest = false;
         switchView('welcome');
     } else {
         switchView('login');

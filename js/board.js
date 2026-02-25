@@ -125,12 +125,14 @@ export function appendPost(post) {
         </div>
         <div class="comment-section">
             <div class="comment-list"></div>
+            ${!authState.isGuest ? `
             <div class="comment-input-wrapper">
                 <input type="text" class="comment-input" placeholder="댓글을 입력하세요..." onkeypress="if(event.key==='Enter') window.app.saveComment('${post.id}')">
                 <button class="comment-submit-btn" onclick="window.app.saveComment('${post.id}')">
                     <i class="fas fa-paper-plane"></i>
                 </button>
             </div>
+            ` : '<p class="guest-info">댓글을 작성하려면 로그인이 필요합니다.</p>'}
         </div>
     `;
     elements.postContainer.prepend(card);
@@ -145,6 +147,10 @@ export async function deletePost(postId) {
 }
 
 export async function saveComment(postId) {
+    if (authState.isGuest) {
+        alert('로그인이 필요한 기능입니다.');
+        return;
+    }
     const input = document.querySelector(`#post-${postId} .comment-input`);
     const content = input.value.trim();
     if (!content) return;
