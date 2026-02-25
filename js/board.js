@@ -219,6 +219,10 @@ function hasVoted(itemId, type) {
 }
 
 export async function handleVote(itemType, itemId, voteType) {
+    if (authState.isGuest) {
+        alert('로그인이 필요한 기능입니다.');
+        return;
+    }
     const votes = JSON.parse(localStorage.getItem('my_votes') || '{}');
     const table = itemType === 'post' ? 'city_posts' : 'city_comments';
 
