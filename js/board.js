@@ -1,6 +1,5 @@
-import { supabaseClient } from './supabaseClient.js';
 import { elements, switchView, getCityDisplayName } from './ui.js';
-import { currentNickname } from './auth.js';
+import { authState } from './auth.js';
 
 export let currentCity = '';
 export let boardChannel = null;
@@ -106,7 +105,7 @@ export async function saveComment(postId) {
     const content = input.value.trim();
     if (!content) return;
     const { data, error } = await supabaseClient.from('city_comments').insert([{
-        post_id: postId, nickname: currentNickname, content
+        post_id: postId, nickname: authState.currentNickname, content
     }]).select();
     if (error) alert('댓글 등록 실패');
     else if (data && data[0]) {

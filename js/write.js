@@ -1,7 +1,6 @@
-import { supabaseClient } from './supabaseClient.js';
 import { elements, switchView } from './ui.js';
 import { currentCity, myPostIds } from './board.js';
-import { currentNickname } from './auth.js';
+import { authState } from './auth.js';
 
 export async function savePost() {
     const title = elements.postTitle.value.trim();
@@ -18,7 +17,7 @@ export async function savePost() {
         .from('city_posts')
         .insert([{
             city_name: currentCity,
-            nickname: currentNickname,
+            nickname: authState.currentNickname,
             title: title,
             content: content
         }])
