@@ -72,6 +72,20 @@ body {
     padding: 20px 0;
 }
 
+.login-form input {
+    width: 100%;
+    padding: 14px 16px;
+    font-size: 1rem;
+    border: 1px solid var(--gray-300);
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.login-form input:focus {
+    border-color: var(--primary-color);
+}
+
 .input-section.hidden {
     display: none;
 }
