@@ -29,6 +29,54 @@ body {
     overflow: hidden;
 }
 
+/* 공통 버튼 스타일 */
+.primary-btn {
+    width: 100%;
+    padding: 14px;
+    background-color: #FF5C00;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    margin-top: 10px;
+}
+
+.primary-btn:hover {
+    background-color: #e65200;
+}
+
+.primary-btn:active {
+    transform: scale(0.98);
+}
+
+.primary-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.helper-text {
+    font-size: 0.85rem;
+    color: #666;
+    margin-top: 8px;
+    text-align: center;
+}
+
+/* 로그인 폼 특화 스타일 */
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px 0;
+}
+
+.input-section.hidden {
+    display: none;
+}
+
+/* 기존 스타일 유지 및 보완 */
 .app-container {
     width: 100%;
     max-width: 480px;

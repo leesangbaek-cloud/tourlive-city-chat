@@ -13,12 +13,19 @@ let myCommentIds = JSON.parse(localStorage.getItem('my_comment_ids') || '[]');
 
 // 3. DOM 요소 추출
 const views = {
+    login: document.getElementById('login-view'),
     lobby: document.getElementById('lobby-view'),
     board: document.getElementById('board-view'),
     write: document.getElementById('write-view')
 };
 
 const elements = {
+    emailInput: document.getElementById('email-input'),
+    otpInput: document.getElementById('otp-input'),
+    emailSection: document.getElementById('email-section'),
+    otpSection: document.getElementById('otp-section'),
+    sendOtpBtn: document.getElementById('send-otp-btn'),
+    verifyOtpBtn: document.getElementById('verify-otp-btn'),
     nicknameInput: document.getElementById('nickname-input'),
     cityNameDisplay: document.getElementById('current-city-name'),
     postContainer: document.getElementById('post-container'),
@@ -31,9 +38,101 @@ const elements = {
 
 function switchView(viewName) {
     Object.keys(views).forEach(key => {
-        views[key].classList.add('hidden');
+        if (views[key]) views[key].classList.add('hidden');
     });
-    views[viewName].classList.remove('hidden');
+    if (views[viewName]) views[viewName].classList.remove('hidden');
+}
+
+// --- 인증 로직 ---
+
+async function initAuth() {
+    // 세션 변경 감지
+    supabaseClient.auth.onAuthStateChange((event, session) => {
+        console.log('초기화 이벤트:', event, session);
+        if (session) {
+            // 로그인 상태면 로비로 이동
+            currentNickname = session.user.email.split('@')[0];
+            elements.nicknameInput.value = currentNickname;
+            switchView('lobby');
+        } else {
+            // 로그아웃 상태면 로그인 화면으로
+            switchView('login');
+        }
+    });
+
+    // 현재 세션 확인
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (session) {
+        currentNickname = session.user.email.split('@')[0];
+        elements.nicknameInput.value = currentNickname;
+        switchView('lobby');
+    }
+}
+
+async function sendOTP() {
+    const email = elements.emailInput.value.trim();
+    if (!email) {
+        alert('이메일을 입력해주세요.');
+        return;
+    }
+
+    elements.sendOtpBtn.disabled = true;
+    elements.sendOtpBtn.textContent = '발송 중...';
+
+    const { error } = await supabaseClient.auth.signInWithOtp({
+        email: email,
+        options: {
+            shouldCreateUser: true
+        }
+    });
+
+    if (error) {
+        alert('인증번호 발송 실패: ' + error.message);
+        elements.sendOtpBtn.disabled = false;
+        elements.sendOtpBtn.textContent = '인증번호 받기';
+    } else {
+        alert('인증번호가 이메일로 발송되었습니다.');
+        elements.emailSection.classList.add('hidden');
+        elements.otpSection.classList.remove('hidden');
+    }
+}
+
+async function verifyOTP() {
+    const email = elements.emailInput.value.trim();
+    const token = elements.otpInput.value.trim();
+
+    if (!token || token.length !== 6) {
+        alert('6자리 인증번호를 입력해주세요.');
+        return;
+    }
+
+    elements.verifyOtpBtn.disabled = true;
+    elements.verifyOtpBtn.textContent = '인증 중...';
+
+    const { data, error } = await supabaseClient.auth.verifyOtp({
+        email: email,
+        token: token,
+        type: 'signup'
+    });
+
+    // signup으로 실패하면 magiclink나 login으로 재시도 (Supabase 설정에 따라 다름)
+    if (error) {
+        const { data: retryData, error: retryError } = await supabaseClient.auth.verifyOtp({
+            email: email,
+            token: token,
+            type: 'login'
+        });
+
+        if (retryError) {
+            alert('인증 실패: ' + retryError.message);
+            elements.verifyOtpBtn.disabled = false;
+            elements.verifyOtpBtn.textContent = '인증 완료';
+            return;
+        }
+    }
+
+    // 성공 시 onAuthStateChange에서 처리됨
+    alert('인증이 완료되었습니다!');
 }
 
 async function enterCityBoard(cityName) {
@@ -312,5 +411,9 @@ document.getElementById('write-btn').addEventListener('click', () => switchView(
 // 작성: 취소 버튼
 document.getElementById('close-write').addEventListener('click', () => switchView('board'));
 
-// 작성: 등록 버튼
-document.getElementById('submit-post').addEventListener('click', savePost);
+// 로그인 관련 이벤트
+elements.sendOtpBtn.addEventListener('click', sendOTP);
+elements.verifyOtpBtn.addEventListener('click', verifyOTP);
+
+// 앱 시작 시 인증 체크
+initAuth();
