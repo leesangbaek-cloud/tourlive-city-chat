@@ -1,3 +1,4 @@
+import { supabaseClient } from './supabaseClient.js';
 import { elements, switchView } from './ui.js';
 import { currentCity, myPostIds } from './board.js';
 import { authState } from './auth.js';

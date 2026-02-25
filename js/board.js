@@ -1,3 +1,4 @@
+import { supabaseClient } from './supabaseClient.js';
 import { elements, switchView, getCityDisplayName } from './ui.js';
 import { authState } from './auth.js';
 

@@ -1,4 +1,5 @@
-import { elements, switchView } from './ui.js';
+import { supabaseClient } from './supabaseClient.js';
+import { elements, switchView, getCityDisplayName } from './ui.js';
 
 export const authState = {
     currentNickname: ''
