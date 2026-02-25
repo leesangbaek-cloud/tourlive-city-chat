@@ -13,6 +13,7 @@ export function setNickname(name) {
 
 export async function initAuth() {
     supabaseClient.auth.onAuthStateChange((event, session) => {
+        console.log('Auth state change:', event, session?.user?.email);
         if (session) {
             authState.user = session.user;
             authState.isGuest = false;

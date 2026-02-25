@@ -29,7 +29,8 @@ export async function savePost() {
         .select();
 
     if (error) {
-        alert('등록에 실패했습니다.');
+        console.error('등록 실패:', error);
+        alert('등록 실패: ' + error.message + '\nRLS 정책이 authenticated 유저에게 허용되어 있는지 확인해주세요.');
     } else if (data && data[0]) {
         myPostIds.push(data[0].id);
         localStorage.setItem('my_post_ids', JSON.stringify(myPostIds));
