@@ -63,7 +63,6 @@ export async function fetchPosts() {
 
     if (error) {
         console.error('게시글 로드 실패:', error);
-        alert('게시글 로드 실패: ' + error.message + '\nSupabase RLS 설정을 확인해주세요.');
         return;
     }
     data.forEach(post => appendPost(post));
@@ -160,7 +159,6 @@ export async function saveComment(postId) {
     }]).select();
     if (error) {
         console.error('댓글 등록 실패:', error);
-        alert('댓글 등록 실패: ' + error.message);
     }
     else if (data && data[0]) {
         myCommentIds.push(data[0].id);
