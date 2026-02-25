@@ -42,6 +42,7 @@ export async function sendMagicLink() {
     try {
         elements.magicLinkBtn.disabled = true;
         elements.magicLinkBtn.textContent = '발송 중...';
+        elements.statusMsg.textContent = '';
 
         const { error } = await supabaseClient.auth.signInWithOtp({
             email,
@@ -52,13 +53,20 @@ export async function sendMagicLink() {
 
         if (error) throw error;
 
-        elements.statusMsg.textContent = '이메일로 로그인 링크가 전송되었습니다. 확인 후 클릭해 주세요!';
+        elements.statusMsg.innerHTML = '이메일로 로그인 링크가 전송되었습니다.<br>확인 후 클릭해 주세요!';
         elements.statusMsg.className = 'status-msg success';
-        elements.magicLinkBtn.textContent = '링크 재발송';
+        elements.magicLinkBtn.textContent = '링크 다시 보내기';
     } catch (err) {
         console.error('매직링크 발송 실패:', err);
-        elements.statusMsg.textContent = '발송 실패: ' + err.message;
+        let msg = '발송 실패: ' + err.message;
+
+        if (err.message.includes('Error sending magic link email')) {
+            msg = '발송 실패: 슈파베이스 이메일 한도(시간당 3회) 초과 또는 SMTP 설정 오류입니다.';
+        }
+
+        elements.statusMsg.textContent = msg;
         elements.statusMsg.className = 'status-msg error';
+        elements.magicLinkBtn.textContent = '로그인 링크 받기';
     } finally {
         elements.magicLinkBtn.disabled = false;
     }

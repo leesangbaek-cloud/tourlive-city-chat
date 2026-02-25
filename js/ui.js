@@ -9,6 +9,7 @@ export const views = {
 export const elements = {
     emailInput: document.getElementById('email-input'),
     magicLinkBtn: document.getElementById('magic-link-btn'),
+    guestLoginBtn: document.getElementById('guest-login-btn'),
     statusMsg: document.getElementById('status-msg'),
     nicknameInput: document.getElementById('nickname-input-field'),
     startBtn: document.getElementById('start-btn'),

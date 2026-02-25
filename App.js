@@ -16,6 +16,11 @@ window.app = {
 // 로그인: 매직링크 발송
 elements.magicLinkBtn.addEventListener('click', sendMagicLink);
 
+// 로그인: 게스트 입장 (임시)
+elements.guestLoginBtn.addEventListener('click', () => {
+    switchView('welcome');
+});
+
 // 로비: 시작하기 (닉네임 설정 후 도시 선택으로)
 elements.startBtn.addEventListener('click', () => {
     const nick = elements.nicknameInput.value.trim();
