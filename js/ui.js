@@ -1,11 +1,13 @@
 export const views = {
+    welcome: document.getElementById('nickname-view'),
     lobby: document.getElementById('lobby-view'),
     board: document.getElementById('board-view'),
     write: document.getElementById('write-view')
 };
 
 export const elements = {
-    nicknameInput: document.getElementById('nickname-input'),
+    nicknameInput: document.getElementById('nickname-input-field'),
+    startBtn: document.getElementById('start-btn'),
     cityNameDisplay: document.getElementById('current-city-name'),
     postContainer: document.getElementById('post-container'),
     postTitle: document.getElementById('post-title'),

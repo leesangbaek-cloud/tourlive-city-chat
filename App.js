@@ -1,15 +1,26 @@
 import { elements, switchView } from './js/ui.js';
-import { enterCityBoard, boardChannel, commentChannel, deletePost, saveComment, deleteComment } from './js/board.js';
+import { enterCityBoard, boardChannel, commentChannel, deletePost, saveComment, deleteComment, handleVote } from './js/board.js';
 import { savePost } from './js/write.js';
 
 // --- 전역 브릿지 (HTML onclick/onkeypress 대응) ---
 window.app = {
     deletePost,
     saveComment,
-    deleteComment
+    deleteComment,
+    handleVote
 };
 
 // --- 이벤트 리스너 설정 ---
+
+// 로비: 시작하기 (닉네임 설정 후 도시 선택으로)
+elements.startBtn.addEventListener('click', () => {
+    const nick = elements.nicknameInput.value.trim();
+    if (!nick) {
+        alert('닉네임을 입력해주세요!');
+        return;
+    }
+    switchView('lobby');
+});
 
 // 로비: 도시 선택
 elements.cityCards.forEach(card => {
@@ -34,5 +45,5 @@ elements.submitPostBtn.addEventListener('click', savePost);
 
 // --- 앱 초기화 ---
 document.addEventListener('DOMContentLoaded', () => {
-    switchView('lobby');
+    switchView('welcome');
 });

@@ -64,27 +64,50 @@ body {
     text-align: center;
 }
 
-/* 로그인 폼 특화 스타일 */
-.login-form {
+.nickname-form {
     display: flex;
     flex-direction: column;
     gap: 20px;
-    padding: 20px 0;
+    padding: 40px 0;
+    max-width: 400px;
+    margin: 0 auto;
 }
 
-.status-msg {
+/* 게시글/댓글 상호작용 스타일 */
+.vote-section {
+    display: flex;
+    gap: 15px;
     margin-top: 10px;
+    border-top: 1px solid #f0f0f0;
+    padding-top: 10px;
+}
+
+.vote-btn {
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
     font-size: 0.9rem;
-    text-align: center;
-    min-height: 1.2em;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: color 0.2s;
 }
 
-.status-msg.error {
-    color: #ff4d4f;
+.vote-btn:hover {
+    color: #FF5C00;
 }
 
-.status-msg.success {
-    color: #52c41a;
+.vote-btn.active.like {
+    color: #FF5C00;
+}
+
+.vote-btn.active.dislike {
+    color: #333;
+}
+
+.vote-count {
+    font-weight: 600;
 }
 
 .login-form input {

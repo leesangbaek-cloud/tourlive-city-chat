@@ -6,25 +6,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tour Buddy Lite | 실시간 도시별 게시판</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
 <body>
     <div id="app" class="app-container">
-        <!-- 1. 로비 화면 -->
-        <div id="lobby-view" class="view">
+        <!-- 1단계: 닉네임 설정 -->
+        <div id="nickname-view" class="view">
             <header class="header">
                 <h1 class="logo">Tour Buddy<span>Lite</span></h1>
-                <p class="subtitle">실시간 도시별 정보 공유 게시판</p>
+                <p class="subtitle">나만의 닉네임으로 시작해보세요</p>
             </header>
-
             <main class="main-content">
-                <div class="input-section">
-                    <label for="nickname-input">닉네임 설정</label>
-                    <input type="text" id="nickname-input" placeholder="사용할 닉네임을 입력하세요" maxlength="10">
+                <div class="nickname-form">
+                    <div class="input-section">
+                        <label for="nickname-input-field">닉네임</label>
+                        <input type="text" id="nickname-input-field" placeholder="예: 떠나고자 하는 자" maxlength="10">
+                    </div>
+                    <button id="start-btn" class="primary-btn">시작하기</button>
+                    <p class="helper-text">게시판에서 사용할 이름을 입력해주세요.</p>
                 </div>
+            </main>
+        </div>
 
-                <div class="city-section">
+        <!-- 2단계: 도시 선택 (기존 lobby-view) -->
+        <div id="lobby-view" class="view hidden">
+            <header class="header">
+                <h1 class="logo">Tour Buddy<span>Lite</span></h1>
+                <p class="subtitle">지금 가장 궁금한 도시를 선택하세요</p>
+            </header>
+            <main class="main-content">
+                <div class="city-grid">
                     <label>도시 선택</label>
                     <div class="city-grid">
                         <div class="city-card" data-city="Paris">
