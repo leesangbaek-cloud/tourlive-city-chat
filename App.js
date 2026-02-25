@@ -1,5 +1,5 @@
 import { elements, switchView } from './js/ui.js';
-import { initAuth, sendOTP } from './js/auth.js';
+import { initAuth, signUp, signIn, sendMagicLink, resetPassword } from './js/auth.js';
 import { enterCityBoard, boardChannel, commentChannel, deletePost, saveComment, deleteComment, handleVote } from './js/board.js';
 import { savePost } from './js/write.js';
 
@@ -14,7 +14,10 @@ window.app = {
 // --- 이벤트 리스너 설정 ---
 
 // 로그인 관련 이벤트
-elements.sendOtpBtn.addEventListener('click', sendOTP);
+elements.loginBtn.addEventListener('click', signIn);
+elements.signupBtn.addEventListener('click', signUp);
+elements.magicLinkBtn.addEventListener('click', sendMagicLink);
+elements.resetPasswordBtn.addEventListener('click', resetPassword);
 
 // 로비: 시작하기 (닉네임 설정 후 도시 선택으로)
 elements.startBtn.addEventListener('click', () => {

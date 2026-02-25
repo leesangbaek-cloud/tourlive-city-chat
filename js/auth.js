@@ -11,71 +11,103 @@ export function setNickname(name) {
 }
 
 export async function initAuth() {
-    console.log('initAuth 시작...');
     supabaseClient.auth.onAuthStateChange((event, session) => {
         console.log('Auth 상태 변경:', event, session);
         if (session) {
             authState.user = session.user;
-            // 닉네임 기본값을 이메일 앞부분으로 설정 (Welcome 화면에서 확인 가능하도록)
-            const defaultNick = session.user.email.split('@')[0];
-            elements.nicknameInput.value = defaultNick;
-            authState.currentNickname = defaultNick;
-
-            // 로그인 성공 시 닉네임 설정 화면으로 이동
-            switchView('welcome');
+            if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
+                const defaultNick = session.user.email.split('@')[0];
+                elements.nicknameInput.value = defaultNick;
+                authState.currentNickname = defaultNick;
+                switchView('welcome');
+            }
+        } else if (event === 'PASSWORD_RECOVERY') {
+            // 비밀번호 재설정 모드 진입 시 로직 (필요 시 확장)
+            alert('비밀번호 재설정 링크가 확인되었습니다. 새로운 비밀번호를 입력해 주세요.');
         } else {
             switchView('login');
         }
     });
 
-    try {
-        const { data: { session } } = await supabaseClient.auth.getSession();
-        if (session) {
-            authState.user = session.user;
-            const defaultNick = session.user.email.split('@')[0];
-            elements.nicknameInput.value = defaultNick;
-            authState.currentNickname = defaultNick;
-            switchView('welcome');
-        } else {
-            switchView('login');
-        }
-    } catch (err) {
-        console.error('세션 확인 중 오류:', err);
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (session) {
+        authState.user = session.user;
+        const defaultNick = session.user.email.split('@')[0];
+        elements.nicknameInput.value = defaultNick;
+        authState.currentNickname = defaultNick;
+        switchView('welcome');
+    } else {
+        switchView('login');
     }
 }
 
-export async function sendOTP() {
+// 1. 회원가입 (Confirm Sign up 메일 발송)
+export async function signUp() {
     const email = elements.emailInput.value.trim();
-    if (!email) {
-        alert('이메일을 입력해주세요.');
-        return;
-    }
+    const password = elements.passwordInput.value.trim();
+    if (!email || !password) return alert('이메일과 비밀번호를 입력해주세요.');
 
     try {
-        elements.sendOtpBtn.disabled = true;
-        elements.sendOtpBtn.textContent = '발송 중...';
-
-        const { error } = await supabaseClient.auth.signInWithOtp({
-            email: email,
-            options: {
-                shouldCreateUser: true,
-                emailRedirectTo: window.location.origin
-            }
+        const { error } = await supabaseClient.auth.signUp({
+            email,
+            password,
+            options: { emailRedirectTo: window.location.origin }
         });
-
-        if (error) {
-            elements.statusMsg.textContent = '발송 실패: ' + error.message;
-            elements.statusMsg.className = 'status-msg error';
-            elements.sendOtpBtn.disabled = false;
-            elements.sendOtpBtn.textContent = '로그인 링크 받기';
-        } else {
-            elements.statusMsg.textContent = '이메일로 로그인 링크가 전송되었습니다. 확인 후 클릭해주세요!';
-            elements.statusMsg.className = 'status-msg success';
-            elements.sendOtpBtn.textContent = '링크 재전송';
-            elements.sendOtpBtn.disabled = false;
-        }
+        if (error) throw error;
+        showStatus('가입 확인 이메일을 발송했습니다. 메일을 확인하고 링크를 클릭해 주세요!', 'success');
     } catch (err) {
-        console.error('sendOTP 오류:', err);
-        elements.sendOtpBtn.disabled = false;
+        showStatus('가입 실패: ' + err.message, 'error');
     }
+}
+
+// 2. 로그인 (이메일/비밀번호)
+export async function signIn() {
+    const email = elements.emailInput.value.trim();
+    const password = elements.passwordInput.value.trim();
+    if (!email || !password) return alert('이메일과 비밀번호를 입력해주세요.');
+
+    try {
+        const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+    } catch (err) {
+        showStatus('로그인 실패: ' + err.message, 'error');
+    }
+}
+
+// 3. 매직링크 (비밀번호 없이 로그인)
+export async function sendMagicLink() {
+    const email = elements.emailInput.value.trim();
+    if (!email) return alert('이메일을 입력해주세요.');
+
+    try {
+        const { error } = await supabaseClient.auth.signInWithOtp({
+            email,
+            options: { emailRedirectTo: window.location.origin }
+        });
+        if (error) throw error;
+        showStatus('매직링크를 발송했습니다. 이메일을 확인해 주세요!', 'success');
+    } catch (err) {
+        showStatus('발송 실패: ' + err.message, 'error');
+    }
+}
+
+// 4. 비밀번호 재설정
+export async function resetPassword() {
+    const email = elements.emailInput.value.trim();
+    if (!email) return alert('이메일을 입력해주세요.');
+
+    try {
+        const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+            redirectTo: window.location.origin
+        });
+        if (error) throw error;
+        showStatus('비밀번호 재설정 메일을 발송했습니다.', 'success');
+    } catch (err) {
+        showStatus('발송 실패: ' + err.message, 'error');
+    }
+}
+
+function showStatus(msg, type) {
+    elements.statusMsg.textContent = msg;
+    elements.statusMsg.className = `status-msg ${type}`;
 }

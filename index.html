@@ -19,10 +19,21 @@
             </header>
             <main class="main-content">
                 <div class="login-form">
-                    <div id="email-section" class="input-section">
+                    <div class="input-section">
                         <label for="email-input">이메일 주소</label>
                         <input type="email" id="email-input" placeholder="example@email.com">
-                        <button id="send-otp-btn" class="primary-btn">로그인 링크 받기</button>
+                    </div>
+                    <div class="input-section">
+                        <label for="password-input">비밀번호</label>
+                        <input type="password" id="password-input" placeholder="비밀번호를 입력하세요">
+                    </div>
+                    <div class="button-group">
+                        <button id="login-btn" class="primary-btn">로그인</button>
+                        <button id="signup-btn" class="outline-btn">회원가입</button>
+                    </div>
+                    <div class="secondary-actions">
+                        <button id="magic-link-btn" class="text-btn">비밀번호 없이 로그인 (매직링크)</button>
+                        <button id="reset-password-btn" class="text-btn">비밀번호를 잊으셨나요?</button>
                     </div>
                     <div id="status-msg" class="status-msg"></div>
                 </div>

@@ -8,7 +8,11 @@ export const views = {
 
 export const elements = {
     emailInput: document.getElementById('email-input'),
-    sendOtpBtn: document.getElementById('send-otp-btn'),
+    passwordInput: document.getElementById('password-input'),
+    loginBtn: document.getElementById('login-btn'),
+    signupBtn: document.getElementById('signup-btn'),
+    magicLinkBtn: document.getElementById('magic-link-btn'),
+    resetPasswordBtn: document.getElementById('reset-password-btn'),
     statusMsg: document.getElementById('status-msg'),
     nicknameInput: document.getElementById('nickname-input-field'),
     startBtn: document.getElementById('start-btn'),
