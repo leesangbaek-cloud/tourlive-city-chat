@@ -1,4 +1,5 @@
 export const views = {
+    login: document.getElementById('login-view'),
     welcome: document.getElementById('nickname-view'),
     lobby: document.getElementById('lobby-view'),
     board: document.getElementById('board-view'),
@@ -6,6 +7,9 @@ export const views = {
 };
 
 export const elements = {
+    emailInput: document.getElementById('email-input'),
+    sendOtpBtn: document.getElementById('send-otp-btn'),
+    statusMsg: document.getElementById('status-msg'),
     nicknameInput: document.getElementById('nickname-input-field'),
     startBtn: document.getElementById('start-btn'),
     cityNameDisplay: document.getElementById('current-city-name'),
