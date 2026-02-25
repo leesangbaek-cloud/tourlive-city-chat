@@ -1,5 +1,4 @@
 export const views = {
-    login: document.getElementById('login-view'),
     welcome: document.getElementById('nickname-view'),
     lobby: document.getElementById('lobby-view'),
     board: document.getElementById('board-view'),
@@ -7,13 +6,6 @@ export const views = {
 };
 
 export const elements = {
-    emailInput: document.getElementById('email-input'),
-    passwordInput: document.getElementById('password-input'),
-    loginBtn: document.getElementById('login-btn'),
-    signupBtn: document.getElementById('signup-btn'),
-    magicLinkBtn: document.getElementById('magic-link-btn'),
-    resetPasswordBtn: document.getElementById('reset-password-btn'),
-    statusMsg: document.getElementById('status-msg'),
     nicknameInput: document.getElementById('nickname-input-field'),
     startBtn: document.getElementById('start-btn'),
     cityNameDisplay: document.getElementById('current-city-name'),
