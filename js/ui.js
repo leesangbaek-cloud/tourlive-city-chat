@@ -7,11 +7,8 @@ export const views = {
 
 export const elements = {
     emailInput: document.getElementById('email-input'),
-    otpInput: document.getElementById('otp-input'),
     emailSection: document.getElementById('email-section'),
-    otpSection: document.getElementById('otp-section'),
     sendOtpBtn: document.getElementById('send-otp-btn'),
-    verifyOtpBtn: document.getElementById('verify-otp-btn'),
     nicknameInput: document.getElementById('nickname-input'),
     cityNameDisplay: document.getElementById('current-city-name'),
     postContainer: document.getElementById('post-container'),

@@ -32,7 +32,7 @@ export async function initAuth() {
 }
 
 export async function sendOTP() {
-    console.log('sendOTP 호출됨');
+    console.log('Magic Link 발송 호출됨');
     const email = elements.emailInput.value.trim();
     if (!email) {
         alert('이메일을 입력해주세요.');
@@ -40,79 +40,37 @@ export async function sendOTP() {
     }
 
     try {
-        console.log('OTP 발송 시도:', email);
+        console.log('Magic Link 발송 시도:', email);
         elements.sendOtpBtn.disabled = true;
         elements.sendOtpBtn.textContent = '발송 중...';
 
         const { error } = await supabaseClient.auth.signInWithOtp({
             email: email,
-            options: { shouldCreateUser: true }
+            options: {
+                shouldCreateUser: true,
+                emailRedirectTo: window.location.origin // 배포된 도메인으로 리다이렉트
+            }
         });
 
         if (error) {
-            console.error('Supabase OTP 발송 에러:', error);
+            console.error('Supabase Magic Link 발송 에러:', error);
             elements.statusMsg.textContent = '발송 실패: ' + error.message;
             elements.statusMsg.className = 'status-msg error';
             elements.sendOtpBtn.disabled = false;
-            elements.sendOtpBtn.textContent = '인증번호 받기';
+            elements.sendOtpBtn.textContent = '로그인 링크 받기';
         } else {
-            console.log('OTP 발송 성공');
-            elements.statusMsg.textContent = '인증번호가 발송되었습니다.';
+            console.log('Magic Link 발송 성공');
+            elements.statusMsg.textContent = '이메일로 로그인 링크가 전송되었습니다. 이메일을 확인해주세요!';
             elements.statusMsg.className = 'status-msg success';
-            elements.emailSection.classList.add('hidden');
-            elements.otpSection.classList.remove('hidden');
+            elements.sendOtpBtn.textContent = '링크 재전송';
+            elements.sendOtpBtn.disabled = false;
         }
     } catch (err) {
         console.error('sendOTP 내부 오류:', err);
         alert('예기치 못한 오류가 발생했습니다: ' + err.message);
         elements.sendOtpBtn.disabled = false;
-        elements.sendOtpBtn.textContent = '인증번호 받기';
+        elements.sendOtpBtn.textContent = '로그인 링크 받기';
     }
 }
 
-export async function verifyOTP() {
-    console.log('verifyOTP 호출됨');
-    const email = elements.emailInput.value.trim();
-    const token = elements.otpInput.value.trim();
-
-    if (!token || token.length !== 6) {
-        alert('6자리 인증번호를 입력해주세요.');
-        return;
-    }
-
-    try {
-        elements.verifyOtpBtn.disabled = true;
-        elements.verifyOtpBtn.textContent = '인증 중...';
-
-        console.log('OTP 검증 시도:', email, token);
-        const { error } = await supabaseClient.auth.verifyOtp({
-            email,
-            token,
-            type: 'signup'
-        });
-
-        if (error) {
-            console.log('Signup 타입 검증 실패, Login 타입으로 재시도...');
-            const { error: retryError } = await supabaseClient.auth.verifyOtp({
-                email,
-                token,
-                type: 'login'
-            });
-
-            if (retryError) {
-                console.error('OTP 최종 검증 실패:', retryError);
-                alert('인증 실패: ' + retryError.message);
-                elements.verifyOtpBtn.disabled = false;
-                elements.verifyOtpBtn.textContent = '인증 완료';
-                return;
-            }
-        }
-        console.log('OTP 검증 성공');
-        alert('인증이 완료되었습니다!');
-    } catch (err) {
-        console.error('verifyOTP 내부 오류:', err);
-        alert('검증 중 오류 발생: ' + err.message);
-        elements.verifyOtpBtn.disabled = false;
-        elements.verifyOtpBtn.textContent = '인증 완료';
-    }
-}
+// verifyOTP 함수 제거 (매직링크는 링크 클릭 시 자동으로 처리됨)

@@ -1,5 +1,5 @@
 import { elements, switchView } from './js/ui.js';
-import { initAuth, sendOTP, verifyOTP } from './js/auth.js';
+import { initAuth, sendOTP } from './js/auth.js';
 import { enterCityBoard, boardChannel, commentChannel, deletePost, saveComment, deleteComment } from './js/board.js';
 import { savePost } from './js/write.js';
 
@@ -35,7 +35,6 @@ elements.submitPostBtn.addEventListener('click', savePost);
 
 // 로그인 관련 이벤트
 elements.sendOtpBtn.addEventListener('click', sendOTP);
-elements.verifyOtpBtn.addEventListener('click', verifyOTP);
 
 // --- 앱 초기화 ---
 document.addEventListener('DOMContentLoaded', () => {
