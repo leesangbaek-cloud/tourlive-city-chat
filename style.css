@@ -200,16 +200,17 @@ label {
     margin-bottom: 12px;
 }
 
-#nickname-input {
+#nickname-input-field {
     width: 100%;
-    padding: 16px;
-    font-size: 16px;
+    padding: 14px 16px;
+    font-size: 1rem;
     border: 1px solid var(--gray-300);
-    border-radius: 12px;
+    border-radius: 8px;
     outline: none;
+    transition: border-color 0.2s;
 }
 
-#nickname-input:focus {
+#nickname-input-field:focus {
     border-color: var(--primary-color);
 }
 
