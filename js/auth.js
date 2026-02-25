@@ -51,12 +51,14 @@ export async function sendOTP() {
 
         if (error) {
             console.error('Supabase OTP 발송 에러:', error);
-            alert('인증번호 발송 실패: ' + error.message);
+            elements.statusMsg.textContent = '발송 실패: ' + error.message;
+            elements.statusMsg.className = 'status-msg error';
             elements.sendOtpBtn.disabled = false;
             elements.sendOtpBtn.textContent = '인증번호 받기';
         } else {
             console.log('OTP 발송 성공');
-            alert('인증번호가 이메일로 발송되었습니다.');
+            elements.statusMsg.textContent = '인증번호가 발송되었습니다.';
+            elements.statusMsg.className = 'status-msg success';
             elements.emailSection.classList.add('hidden');
             elements.otpSection.classList.remove('hidden');
         }

@@ -21,7 +21,8 @@ export const elements = {
     backToLobbyBtn: document.getElementById('back-to-lobby'),
     writeTriggerBtn: document.getElementById('write-btn'),
     closeWriteBtn: document.getElementById('close-write'),
-    submitPostBtn: document.getElementById('submit-post')
+    submitPostBtn: document.getElementById('submit-post'),
+    statusMsg: document.getElementById('status-msg')
 };
 
 export function switchView(viewName) {

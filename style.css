@@ -72,6 +72,21 @@ body {
     padding: 20px 0;
 }
 
+.status-msg {
+    margin-top: 10px;
+    font-size: 0.9rem;
+    text-align: center;
+    min-height: 1.2em;
+}
+
+.status-msg.error {
+    color: #ff4d4f;
+}
+
+.status-msg.success {
+    color: #52c41a;
+}
+
 .login-form input {
     width: 100%;
     padding: 14px 16px;
