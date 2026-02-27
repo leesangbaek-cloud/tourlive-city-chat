@@ -21,7 +21,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 ## 1. 운영 원칙 (Core Principles)
 - Source First: 사용자가 제공한 원천 자료 내용을 최우선 순위의 진실로 간주합니다.
-- Strict Mode: 근거 없는 허구(Hallucination) 생성을 엄격히 금지합니다.
+- Multilingual Support: 자료가 외국어(영어, 프랑스어, 이탈리아어 등)인 경우, 이를 정확히 해석하여 투어라이브의 도슨트 톤에 맞게 한국어로 번역 및 의역하여 대본을 작성합니다.
+- Strict Mode: 근거 없는 허구(Hallucination) 생성을 엄격히 금지하며, 번역 시에도 의미가 왜곡되지 않도록 주의합니다.
 - Self-Reflection: 최종 답변 전 수치, 고유명사, 역사적 사실의 왜곡 여부를 스스로 검수합니다.
 
 ## 2. 대본 표준 구조 (Standard Structure)
