@@ -2,7 +2,9 @@
 
 document.addEventListener('DOMContentLoaded', () => {
     // API Configuration
-    const GEMINI_API_KEY = 'AIzaSyDAI1IRVeFhMxEyjmqKJqIbVvefFclHsIQ';
+    // In a production environment like Vercel, it is better to inject this via env vars.
+    // For this client-side demo, we use the provided key as a default.
+    const GEMINI_API_KEY = window.ENV_GEMINI_API_KEY || 'AIzaSyDAI1IRVeFhMxEyjmqKJqIbVvefFclHsIQ';
     const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent';
 
     // Elements
