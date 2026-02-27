@@ -3,9 +3,8 @@
 document.addEventListener('DOMContentLoaded', () => {
     // API Configuration
     // Note: Vercel Env Vars are NOT visible in client-side JS (app.js) unless you use a build tool.
-    // For this hackathon, we will use the hardcoded key as it is a pure static site.
     const GEMINI_API_KEY = 'AIzaSyDAI1IRVeFhMxEyjmqKJqIbVvefFclHsIQ';
-    const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+    const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent';
 
     // Elements
     const styleButtons = document.querySelectorAll('.style-btn');
