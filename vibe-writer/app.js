@@ -7,7 +7,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const modeBadge = document.getElementById('mode-badge');
     const generateBtn = document.getElementById('generate-btn');
     const aiOutput = document.getElementById('ai-output');
-    const publishBtn = document.getElementById('publish-btn');
     const sourceTextarea = document.getElementById('source-text');
     const copyBtn = document.getElementById('copy-btn');
 
@@ -242,14 +241,4 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Publish Button Action
-    publishBtn.addEventListener('click', () => {
-        publishBtn.innerHTML = '<i data-lucide="loader-2" class="spin"></i> Publishing...';
-        lucide.createIcons();
-        setTimeout(() => {
-            alert('성공적으로 투어라이브 CMS로 전송되었습니다!');
-            publishBtn.innerHTML = '<i data-lucide="send"></i> Publish to CMS';
-            lucide.createIcons();
-        }, 1500);
-    });
 });
