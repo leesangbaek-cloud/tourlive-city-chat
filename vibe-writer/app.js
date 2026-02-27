@@ -1,4 +1,4 @@
-// Vibe Writer App Logic (v1.9 - Premium Dynamic Mock-up)
+// Vibe Writer App Logic (v2.0 - Multi-Source Support)
 
 document.addEventListener('DOMContentLoaded', () => {
     // Elements
@@ -7,11 +7,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const modeBadge = document.getElementById('mode-badge');
     const generateBtn = document.getElementById('generate-btn');
     const aiOutput = document.getElementById('ai-output');
-    const fetchUrlBtn = document.getElementById('fetch-url');
-    const sourceUrlInput = document.getElementById('source-url');
     const publishBtn = document.getElementById('publish-btn');
     const sourceTextarea = document.getElementById('source-text');
     const copyBtn = document.getElementById('copy-btn');
+
+    // Dynamic Sources Elements
+    const addSourceBtn = document.getElementById('add-source');
+    const sourcesContainer = document.getElementById('sources-container');
 
     // State
     let currentStyle = 'louvre';
@@ -40,16 +42,44 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // URL Fetching using CORS Proxy
-    fetchUrlBtn.addEventListener('click', async () => {
-        const url = sourceUrlInput.value;
+    // Function to create a new source input row
+    function createSourceRow() {
+        const row = document.createElement('div');
+        row.className = 'url-input-wrapper';
+        row.innerHTML = `
+            <input type="text" placeholder="https://..." class="input-field source-url">
+            <button class="btn-secondary fetch-url">Crawl</button>
+            <button class="btn-remove-source" title="Remove"><i data-lucide="trash-2"></i></button>
+        `;
+
+        // Add Remove Functionality
+        row.querySelector('.btn-remove-source').addEventListener('click', () => {
+            if (sourcesContainer.children.length > 1) {
+                row.remove();
+            } else {
+                alert('최소 하나의 소스 입력칸은 필요합니다.');
+            }
+        });
+
+        // Add Crawl Functionality to the new button
+        const crawlBtn = row.querySelector('.fetch-url');
+        const urlInput = row.querySelector('.source-url');
+        crawlBtn.addEventListener('click', () => crawlSource(urlInput, crawlBtn));
+
+        sourcesContainer.appendChild(row);
+        lucide.createIcons();
+    }
+
+    // Individual Crawl Logic
+    async function crawlSource(input, btn) {
+        const url = input.value;
         if (!url) {
             alert('URL을 입력해주세요.');
             return;
         }
 
-        fetchUrlBtn.disabled = true;
-        fetchUrlBtn.innerHTML = '<i data-lucide="loader-2" class="spin"></i> Crawling...';
+        btn.disabled = true;
+        btn.innerHTML = '<i data-lucide="loader-2" class="spin"></i>';
         lucide.createIcons();
 
         try {
@@ -69,24 +99,43 @@ document.addEventListener('DOMContentLoaded', () => {
                 const paragraphs = Array.from(doc.querySelectorAll('p, h1, h2, h3, article'))
                     .map(el => el.textContent.trim())
                     .filter(txt => txt.length > 30)
-                    .slice(0, 15);
+                    .slice(0, 5); // Take top 5 paragraphs per source
 
                 const contentText = paragraphs.join('\n\n');
-                sourceTextarea.value = `[Source: ${title}]\n\n${contentText.substring(0, 1000)}`;
-                sourceUrlInput.style.borderColor = '#10b981';
-                setTimeout(() => sourceUrlInput.style.borderColor = '', 2000);
+
+                // Append to source textarea instead of overwriting
+                const currentText = sourceTextarea.value;
+                const newContent = `[Source: ${title}]\n${contentText}`;
+
+                if (currentText.includes(`[Source: ${title}]`)) {
+                    alert('이미 추가된 소스입니다.');
+                } else {
+                    sourceTextarea.value = currentText ? `${currentText}\n\n---\n\n${newContent}` : newContent;
+                }
+
+                input.style.borderColor = '#10b981';
             }
         } catch (error) {
             console.error('Crawling error:', error);
-            alert(`크롤링 실패: 일부 사이트는 보안 정책상 차단되어 있습니다. 수동 복사를 권장합니다.`);
+            alert(`크롤링 실패: 일부 사이트는 보안 정책상 차단되어 있습니다.`);
         } finally {
-            fetchUrlBtn.disabled = false;
-            fetchUrlBtn.innerHTML = 'Crawl';
+            btn.disabled = false;
+            btn.innerHTML = 'Crawl';
             lucide.createIcons();
         }
-    });
+    }
 
-    // Generate Script using Premium Dynamic Templates
+    // Initialize the first source row crawl button
+    const firstCrawlBtn = document.querySelector('.fetch-url');
+    const firstUrlInput = document.querySelector('.source-url');
+    if (firstCrawlBtn && firstUrlInput) {
+        firstCrawlBtn.addEventListener('click', () => crawlSource(firstUrlInput, firstCrawlBtn));
+    }
+
+    // Add Source Button Event
+    addSourceBtn.addEventListener('click', createSourceRow);
+
+    // Generate Script using Premium Dynamic Templates (Handles Multiple Sources)
     generateBtn.addEventListener('click', () => {
         const sourceText = sourceTextarea.value;
         const genMode = genModeSelect.value;
@@ -98,69 +147,67 @@ document.addEventListener('DOMContentLoaded', () => {
 
         generateBtn.disabled = true;
         generateBtn.innerHTML = '<i data-lucide="loader-2" class="spin"></i> AI 작가 집필 중...';
-        aiOutput.innerHTML = '<div class="placeholder">AI가 원천 데이터를 분석하여 감동적인 대본으로 변환 중입니다...</div>';
+        aiOutput.innerHTML = '<div class="placeholder">여러 소스의 데이터를 통합하여 최고의 대본을 집필 중입니다...</div>';
         lucide.createIcons();
 
-        // Extract Topic
+        // Extract Topic(s)
         let topic = "이 작품";
-        if (sourceText.includes('[Source:')) {
-            const match = sourceText.match(/\[Source:\s*(.*?)[\]\n]/);
-            if (match && match[1]) {
-                topic = match[1].split('|')[0].trim().substring(0, 30);
+        const sources = sourceText.match(/\[Source:\s*(.*?)[\]\n]/g);
+        if (sources && sources.length > 0) {
+            const firstTopic = sources[0].match(/\[Source:\s*(.*?)[\]\n]/)[1].split('|')[0].trim();
+            if (sources.length > 1) {
+                topic = `"${firstTopic}" 외 ${sources.length - 1}건의 자료`;
+            } else {
+                topic = `"${firstTopic}"`;
             }
-        } else if (sourceText.length > 5) {
-            topic = sourceText.substring(0, 20).replace(/\n/g, ' ');
         }
 
         setTimeout(() => {
             const mockScripts = {
-                louvre: `[BGM: 경쾌하고 미스테리한 현악사중주]
-
+                louvre: `
 # 도입
-여러분, 지금 제 앞에 있는 ${topic}을(를) 보세요. 자료의 행간을 읽어보니, 이 작품 뒤에는 우리가 전혀 예상치 못한 역설적인 비하인드가 숨겨져 있습니다. [Pause] 어쩌면 이 이야기는 지금껏 세상에 알려진 것과 조금 다를지도 모릅니다.
+여러분, 제가 지금 ${topic}을(를) 포함한 여러 원천 자료들을 면밀히 분석해봤습니다. [Pause] 자료들 사이의 연결 고리를 찾아보니, 우리가 지금까지 대수롭지 않게 넘겼던 사실 속에 거대한 비밀이 숨겨져 있더군요.
 
 # 시선 유도
-먼저, 화면 가운데에서 뿜어져 나오는 저 에너지를 봐주세요. 마치 살아있는 생명체처럼 꿈틀거리고 있죠? 수집된 정보에 따르면, 이 부분이야말로 작가가 가장 고뇌했던 지점입니다. [Pause] 주변의 고요함과 대비되는 저 소동을 시선으로 따라가 보세요.
+자, 먼저 가장 비중 있게 다뤄진 핵심 지점을 봐주세요. 수집된 다각도의 정보들이 공통적으로 가리키는 바로 그곳입니다. [Pause] 파편화된 데이터들이 하나의 완성된 이야기로 맞춰지는 순간이 느껴지시나요?
 
 # 지식
-이용자님, 제가 AI 지식을 더해 분석해보니 여기에는 흥미로운 사실이 하나 더 있습니다. **[체크 필요: 원본 데이터의 2차 교차 검증]** 사실 루브르에서는 이런 식의 정보를 전달할 때 청중의 호기심을 자극하는 '반전'의 장치로 쓰이기도 하죠. 단순한 정보 이상의 드라마가 이 ${topic} 안에 숨 쉬고 있습니다.
+이용자님, 제가 AI 지식을 더해 교차 분석해보니 여기에는 흥미로운 통합적 사실이 있습니다. **[체크 필요: 다중 소스 간 정보 일치성 검토]** 루브르의 시선으로 볼 때, 이런 풍부한 자료의 조합은 청중에게 더 깊은 신뢰와 위트를 동시에 줄 수 있는 최고의 재료가 되죠.
 
 # 마무리
-오늘 여러분의 마음속에는 어떤 영감이 소용돌이치고 있나요? [Pause] 이 아름다운 소동을 뒤로하고, 우리는 이제 이 흐름이 이어지는 다음 장소로 발걸음을 옮겨보겠습니다.`,
+오늘 여러분의 마음속에 쌓인 이 지식의 층위들이 여행의 깊이를 더해주길 바랍니다. [Pause] 이제 이 풍성한 이야기들을 품고, 다음 예술의 현장으로 이동해 보겠습니다.`,
 
-                orsay: `[BGM: 서정적이고 고독한 첼로 선율]
-
+                orsay: `
 # 도입
-밤하늘이, 혹은 이 풍경이 이렇게나 뜨거울 수 있을까요? [Pause] 수집된 ${topic}의 자료들 사이로 고개를 내밀고 있는 감정의 조각들을 하나씩 모아봤습니다. 마치 누군가의 간절한 기도처럼 반짝이는 이야기들입니다.
+밤하늘의 별들처럼 흩어져 있던 ${topic}의 기록들을 하나로 모았습니다. [Pause] 수집된 여러 자료의 결마다 묻어있는 창작자의 고독과 열망을 이제 하나의 선율로 들려드리고자 합니다.
 
 # 시선 유도
-저 터치를 자세히 봐주세요. 단순한 기록이 아닙니다. 자료에서 언급된 그 굴곡과 질감, 제작자가 직접 숨결을 불어넣은 듯한 그 디테일이 느껴지시나요? [Pause] 빛이 그 굴곡에 부딪혀 실제로 반짝이는 듯한 환각을 불러일으킵니다.
+각 자료가 강조하는 세밀한 묘사들에 집중해 보세요. 붓터치 하나, 단어 하나에 서린 감정의 파동이 보이시나요? [Pause] 파편화된 정보들이 모여 하나의 뜨거운 심장 소리를 만들어내며 우리에게 말을 걸어옵니다.
 
 # 지식
-오르세의 시선으로 이 ${topic}을 바라본다면, 우리는 그 안에 숨겨진 색채를 발견할 수 있습니다. **[체크 필요: 당시 제작자의 편지 내용 인용]** 비록 지금은 차가운 텍스트로 보일지라도, AI의 지식으로 보완해본 결과 이곳엔 고독을 이겨내려는 뜨거운 희망의 붓터치가 숨겨져 있었네요. 
+오르세의 서정적 시선으로 이 통합된 ${topic}의 세계를 바라본다면, 우리는 그 안에 숨겨진 거대한 감정의 지도를 발견할 수 있습니다. **[체크 필요: 다중 자료 기반 시대적 배경 재구성]** 비록 시작은 각기 다른 기록이었을지라도, AI가 그 행간을 이어보니 결국 하나의 거대한 사랑 이야기였네요.
 
 # 마무리
-시선이 머문 곳마다 따뜻한 위로가 깃들기를 바랍니다. [Pause] 이제 더 깊은 심연으로, 그가 사랑했던 또 다른 색채를 찾아서 발걸음을 옮겨볼까요?`,
+조각난 지식들이 모여 여러분의 가슴 속에 하나의 별이 되었기를 바랍니다. [Pause] 이제 더 깊은 심연으로, 또 다른 이야기가 기다리는 곳을 향해 발걸음을 옮겨볼까요?`,
 
-                florence: `[BGM: 웅장하고 긴장감 넘치는 오케스트라]
-
+                florence: `
 # 도입
-이 공간 안에 펼쳐진 ${topic}의 세계는 당시의 예술적 관습을 완전히 뒤엎은 하나의 혁명이었습니다. [Pause] 철저한 고증과 수치로 무장한, 대리석의 질감보다 더 차가운 데이터의 정수를 지금 공개합니다.
+이곳에 집결된 ${topic} 관련 다각도 데이터는 르네상스적 치밀함의 정수를 보여줍니다. [Pause] 철저한 고증과 수치로 무장한 다중 소스의 정보를 분석하여, 가장 완벽한 형태의 도슨트 가이드를 지금 공개합니다.
 
 # 시선 유도
-화면 하단의 수평선을 보세요. 소스 데이터에서 명시한 그 물리적 수치가 실제 시각적 경험과 어떻게 결합되는지 분석할 시간입니다. 구도의 완벽함 속에서 뿜어져 나오는 긴장감을 팽팽하게 느껴보시기 바랍니다. [Pause] 디테일의 경이로움을 목격하십시오.
+각 자료의 좌표값이 일치하는 완벽한 구도를 확인하십시오. 소스마다 조금씩 달랐던 디테일들이 고도의 계산을 통해 하나의 무결한 사실로 정립되는 과정입니다. [Pause] 데이터의 웅장함을 직접 목격하십시오.
 
 # 지식
-이 ${topic}의 구성 성분은 당시 기술로서는 불가능에 가까운 도전이었습니다. **[체크 필요: 물리적 재료의 현대적 성분 분석 데이터]** 피렌체 거장들이 추구했던 '완벽한 조화'가 이 파편화된 정보들 속에서도 면밀히 관찰됩니다. 이는 철저한 계산과 통제되지 않는 열망이 한 공간에서 공존하고 있음을 증명하죠.
+수집된 복합 성분 분석 결과, 이 ${topic}은 고대의 지혜와 당대의 혁신이 결합된 결과물임이 증명되었습니다. **[체크 필요: 다중 소스 교차 검증을 통한 물리적 고증]** 피렌체 거장들이 추구했던 '완벽한 조화'가 이 방대한 정보 집합체 속에서도 면밀하고 수학적으로 관찰됩니다.
 
 # 마무리
-완벽한 구도 속에서 피어난 불완전한 인간의 열정, 데이터가 말하는 진실에 귀를 기울여 보셨나요? [Pause] 긴장의 끈을 놓지 말고, 다음 르네상스의 정수로 안내하겠습니다.`
+방대한 데이터가 증명하는 흔들림 없는 진실에 귀를 기울여 보셨습니까? [Pause] 이 완벽한 긴장감을 유지한 채, 다음 르네상스의 걸작으로 안내하겠습니다.`
             };
 
             const selectedScript = mockScripts[currentStyle] || mockScripts['louvre'];
             const formattedScript = selectedScript
+                .trim()
                 .replace(/\n/g, '<br>')
-                .replace(/\[BGM: (.*?)\]/g, '<span class="bgm-tag">[BGM: $1]</span>')
                 .replace(/\[Pause\]/g, '<span class="pause-tag">Pause</span>')
                 .replace(/\[체크 필요: (.*?)\]/g, '<span class="check-needed">[체크 필요: $1]</span>');
 
@@ -170,17 +217,6 @@ document.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
             aiOutput.focus();
         }, 1200);
-    });
-
-    // Publish Button Action
-    publishBtn.addEventListener('click', () => {
-        publishBtn.innerHTML = '<i data-lucide="loader-2" class="spin"></i> Publishing...';
-        lucide.createIcons();
-        setTimeout(() => {
-            alert('성공적으로 투어라이브 CMS로 전송되었습니다!');
-            publishBtn.innerHTML = '<i data-lucide="send"></i> Publish to CMS';
-            lucide.createIcons();
-        }, 1500);
     });
 
     // Copy Button Action
@@ -204,5 +240,16 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Copy failed:', err);
             alert('복사에 실패했습니다.');
         });
+    });
+
+    // Publish Button Action
+    publishBtn.addEventListener('click', () => {
+        publishBtn.innerHTML = '<i data-lucide="loader-2" class="spin"></i> Publishing...';
+        lucide.createIcons();
+        setTimeout(() => {
+            alert('성공적으로 투어라이브 CMS로 전송되었습니다!');
+            publishBtn.innerHTML = '<i data-lucide="send"></i> Publish to CMS';
+            lucide.createIcons();
+        }, 1500);
     });
 });
