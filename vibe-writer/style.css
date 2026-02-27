@@ -154,19 +154,12 @@ body {
     color: var(--accent-color);
 }
 
-.panel-content {
-    flex-grow: 1;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-}
-
+/* Form Elements */
 .setting-group {
     padding: 1.25rem 1.5rem;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    flex-shrink: 0;
 }
 
 .flex-grow {
@@ -179,66 +172,6 @@ label {
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: var(--text-muted);
-}
-
-.label-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.25rem;
-}
-
-.btn-add-source {
-    background: transparent;
-    border: 1px dashed var(--border-color);
-    color: var(--accent-color);
-    font-size: 0.7rem;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    transition: var(--transition);
-}
-
-.btn-add-source:hover {
-    border-color: var(--accent-color);
-    background: rgba(255, 107, 53, 0.05);
-}
-
-.sources-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    max-height: 180px;
-    overflow-y: auto;
-    padding-right: 4px;
-}
-
-/* Internal scrollbar for sources */
-.sources-list::-webkit-scrollbar {
-    width: 4px;
-}
-
-.sources-list::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
-}
-
-.btn-remove-source {
-    background: transparent;
-    border: none;
-    color: var(--text-muted);
-    cursor: pointer;
-    transition: var(--transition);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.btn-remove-source:hover {
-    color: var(--error-color);
 }
 
 .input-field {
@@ -404,27 +337,7 @@ label {
     color: var(--text-primary);
 }
 
-/* Badges */
-.badge {
-    padding: 0.25rem 0.6rem;
-    border-radius: 20px;
-    font-size: 0.7rem;
-    font-weight: 600;
-    background: var(--bg-tertiary);
-    color: var(--text-muted);
-}
-
-.badge.active {
-    background: rgba(16, 185, 129, 0.1);
-    color: var(--success-color);
-    border: 1px solid rgba(16, 185, 129, 0.2);
-}
-
 /* Editor Panel */
-.editor-panel {
-    border-left: 1px solid var(--border-color);
-}
-
 .editor-container {
     flex-grow: 1;
     padding: 2rem;
@@ -478,7 +391,7 @@ label {
     gap: 0.75rem;
 }
 
-/* Fact-check marks */
+/* Tags */
 .check-needed {
     background: rgba(245, 158, 11, 0.15);
     color: var(--warning-color);
@@ -490,13 +403,6 @@ label {
     margin-left: 4px;
 }
 
-.bgm-tag {
-    color: var(--accent-color);
-    font-weight: 600;
-    font-size: 0.9rem;
-    opacity: 0.8;
-}
-
 .pause-tag {
     color: var(--text-muted);
     font-weight: 800;
@@ -504,15 +410,6 @@ label {
     background: var(--bg-tertiary);
     padding: 2px 6px;
     border-radius: 4px;
-}
-
-.fact-check-status {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: var(--success-color);
 }
 
 /* Scrollbar */
