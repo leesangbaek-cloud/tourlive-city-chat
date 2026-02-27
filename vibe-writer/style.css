@@ -126,6 +126,13 @@ body {
     overflow: hidden;
 }
 
+.panel-content {
+    flex-grow: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
 .panel:last-child {
     border-right: none;
     background: var(--bg-primary);
@@ -166,12 +173,39 @@ body {
     flex-grow: 1;
 }
 
+.label-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
 label {
     font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: var(--text-muted);
+}
+
+.btn-add-source {
+    background: rgba(255, 107, 53, 0.1);
+    color: var(--accent-color);
+    border: 1px dashed var(--accent-color);
+    border-radius: 4px;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    transition: var(--transition);
+}
+
+.btn-add-source:hover {
+    background: var(--accent-color);
+    color: white;
 }
 
 .input-field {
@@ -199,6 +233,42 @@ label {
 .url-input-wrapper {
     display: flex;
     gap: 0.5rem;
+    align-items: center;
+}
+
+.sources-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-height: 180px;
+    /* FIXED HEIGHT FOR SCROLLING */
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+/* Custom scrollbar for localized list */
+.sources-list::-webkit-scrollbar {
+    width: 4px;
+}
+
+.sources-list::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+.btn-remove-source {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-remove-source:hover {
+    color: var(--error-color);
 }
 
 .url-input-wrapper input {
