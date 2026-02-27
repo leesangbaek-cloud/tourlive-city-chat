@@ -1,6 +1,10 @@
-// Vibe Writer App Logic (v1.6 - Real Crawling & Dynamic Mock)
+// Vibe Writer App Logic (v1.7 - Real Gemini AI Integration)
 
 document.addEventListener('DOMContentLoaded', () => {
+    // API Configuration
+    const GEMINI_API_KEY = 'AIzaSyDAI1IRVeFhMxEyjmqKJqIbVvefFclHsIQ';
+    const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+
     // Elements
     const styleButtons = document.querySelectorAll('.style-btn');
     const genModeSelect = document.getElementById('gen-mode');
@@ -12,6 +16,33 @@ document.addEventListener('DOMContentLoaded', () => {
     const publishBtn = document.getElementById('publish-btn');
     const sourceTextarea = document.getElementById('source-text');
 
+    // System Prompt Template
+    const SYSTEM_PROMPT = `당신은 투어라이브의 사내 AI 도슨트 에디터, 'Vibe Writer'입니다. 당신의 목표는 가이드의 원천 자료와 AI의 예술적 지식을 결합하여, 투어라이브만의 독보적인 감성이 담긴 대본을 생성하는 것입니다.
+
+## 1. 운영 원칙 (Core Principles)
+- Source First: 사용자가 제공한 원천 자료 내용을 최우선 순위의 진실로 간주합니다.
+- Strict Mode: 근거 없는 허구(Hallucination) 생성을 엄격히 금지합니다.
+- Self-Reflection: 최종 답변 전 수치, 고유명사, 역사적 사실의 왜곡 여부를 스스로 검수합니다.
+
+## 2. 대본 표준 구조 (Standard Structure)
+모든 대본은 다음 4단계 구조를 반드시 준수해야 합니다:
+1. 도입 (Intro): 작품의 첫인상, 상징성, 그리고 청취자의 호기심을 자극하는 질문으로 분위기를 환기합니다.
+2. 시선 유도 (Visual Guide): 청취자의 눈이 어디에 머물러야 하는지 구체적으로 지시합니다. (예: "좌측 하단의 붉은 옷을 입은 여인을 보세요", "붓터치의 거친 질감이 느껴지시나요?")
+3. 지식 (Insight): 작품의 핵심 정보, 화가의 의도, 비하인드 스토리 등을 위트 있는 비유와 함께 전달합니다.
+4. 마무리 (Outro): 깊이 있는 질문을 통해 여운을 남기고, 다음 작품으로의 이동을 자연스럽게 유도합니다.
+
+## 3. 스타일 규칙 (Styles)
+- 루브르 Style: 참여 유도형 질문, 역설적인 비하인드 스토리, 현대적인 위트를 섞어 가볍지만 깊이 있게 전달합니다.
+- 오르세 Style: 색채와 붓터치에 대한 감성적/시각적 묘사에 집중합니다. 화가의 고독, 희망, 인간적 고뇌를 감정에 호소하듯 전달합니다.
+- 피렌체 Style: 작품의 크기, 무게, 재료(대리석, 템페라 등)의 물리적 디테일을 강조합니다. 당시의 시대적 긴장감과 완성도의 경이로움을 묘사합니다.
+
+## 4. 특수 태그 사용 (Must use these tags)
+- 장면 전환 시 [BGM: 무드] 태그를 삽입합니다. (예: [BGM: 장엄한 클래식])
+- 강조나 시선 이동 시 [Pause] 태그를 삽입합니다.
+- AI 보완 지식이나 정확한 확인이 필요한 구간에는 문구 뒤에 [체크 필요]를 붙입니다.
+
+언어: 투어라이브 사용자에게 직접 말하는 듯한 '친절하고 전문적인 구어체'를 사용하십시오.`;
+
     // State
     let currentStyle = 'louvre';
 
@@ -21,7 +52,6 @@ document.addEventListener('DOMContentLoaded', () => {
             styleButtons.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             currentStyle = btn.dataset.style;
-            console.log(`Style switched to: ${currentStyle}`);
         });
     });
 
@@ -40,18 +70,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Actual URL Fetching using CORS Proxy (allorigins)
+    // Actual URL Fetching using CORS Proxy
     fetchUrlBtn.addEventListener('click', async () => {
         const url = sourceUrlInput.value;
         if (!url) {
             alert('URL을 입력해주세요.');
-            return;
-        }
-
-        try {
-            new URL(url);
-        } catch (e) {
-            alert('유효한 URL(https://...)을 입력해주세요.');
             return;
         }
 
@@ -79,18 +102,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     .slice(0, 15);
 
                 const contentText = paragraphs.join('\n\n');
-
-                if (contentText.length < 50) {
-                    throw new Error('내용을 충분히 추출하지 못했습니다. 보안이 걸린 사이트일 수 있습니다.');
-                }
-
                 sourceTextarea.value = `[Source: ${title}]\n\n${contentText}`;
                 sourceUrlInput.style.borderColor = '#10b981';
                 setTimeout(() => sourceUrlInput.style.borderColor = '', 2000);
             }
         } catch (error) {
             console.error('Crawling error:', error);
-            alert(`크롤링 실패: ${error.message}\n(CORS 정책이나 사이트 보안으로 인해 수동 복사/붙여넣기가 필요할 수 있습니다)`);
+            alert(`크롤링 실패: 일부 사이트는 보안 정책상 크롤링이 차단될 수 있습니다.`);
         } finally {
             fetchUrlBtn.disabled = false;
             fetchUrlBtn.innerHTML = 'Crawl';
@@ -98,8 +116,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Generate Script with dynamic contextual mock
-    generateBtn.addEventListener('click', () => {
+    // Generate Script using Real Gemini API
+    generateBtn.addEventListener('click', async () => {
         const sourceText = sourceTextarea.value;
         const genMode = genModeSelect.value;
 
@@ -109,79 +127,66 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         generateBtn.disabled = true;
-        generateBtn.innerHTML = '<i data-lucide="loader-2" class="spin"></i> 집필 중...';
-        aiOutput.innerHTML = '<div class="placeholder">AI가 원본 데이터를 분석하여 투어라이브 대본으로 변환 중입니다...</div>';
+        generateBtn.innerHTML = '<i data-lucide="loader-2" class="spin"></i> AI 작가 집필 중...';
+        aiOutput.innerHTML = '<div class="placeholder">Gemini 1.5 Flash가 대본을 집필 중입니다. 잠시만 기다려 주세요...</div>';
         lucide.createIcons();
 
-        let topic = "이 작품";
-        if (sourceText.includes('[Source:')) {
-            const match = sourceText.match(/\[Source:\s*(.*?)[\]\n]/);
-            if (match && match[1]) {
-                topic = `"${match[1].substring(0, 30).trim()}..."`;
+        // Construct Content for Gemini
+        const userMessage = `다음 정보를 바탕으로 ${currentStyle} 스타일의 투어라이브 도슨트 대본을 작성해줘.\n\n[모드]: ${genMode}\n[원본 데이터]:\n${sourceText || '없음 (제로베이스 창작)'}`;
+
+        try {
+            const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    contents: [{
+                        parts: [{
+                            text: `${SYSTEM_PROMPT}\n\n${userMessage}`
+                        }]
+                    }],
+                    generationConfig: {
+                        temperature: 0.7,
+                        maxOutputTokens: 2048,
+                    }
+                })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error?.message || 'Gemini API 호출에 실패했습니다.');
             }
-        }
 
-        setTimeout(() => {
-            const mockScripts = {
-                louvre: `[BGM: 경쾌하고 미스테리한 현악사중주]
+            const result = await response.json();
+            const aiText = result.candidates[0].content.parts[0].text;
 
-# 도입
-여러분, 제가 방금 수집한 정보를 바탕으로 ${topic}에 대해 아주 흥미로운 이야기를 들려드릴게요. [Pause] 평범해 보이는 이 데이터 뒤에 숨겨진 진짜 이야기를 아시나요? 
-
-# 시선 유도
-자, 먼저 ${topic}의 가장 핵심적인 부분을 봐주세요. 자료의 첫머리에서 강조한 그 지점이 보이시나요? [Pause] 바로 그곳에서 작가의 의도가 시작됩니다.
-
-# 지식
-이용자님, 우리가 방금 찾아낸 소스에 따르면, 이 부분은 단순한 정보가 아닙니다. **[체크 필요: 원본 데이터의 신뢰성 검토]** 사실 루브르에서 이런 식으로 정보를 전달할 때는 청중과의 심리적 거리를 좁히는 것이 핵심이죠. 마치 이 자료가 처음부터 우리를 위해 쓰인 것처럼요.
-
-# 마무리
-오늘 이 소중한 지식이 여러분의 여행길에 작은 등불이 되었으면 좋겠네요. [Pause] 다음은 이 흐름을 이어받아 좀 더 깊은 배경지식으로 이동해 볼까요?`,
-
-                orsay: `[BGM: 서정적이고 고독한 첼로 선율]
-
-# 도입
-${topic}... 이 이름만 들어도 가슴 한구석이 아릿해지는 느낌입니다. [Pause] 파편화된 자료들 사이로 고개를 내밀고 있는 감정의 조각들을 하나씩 모아봤습니다.
-
-# 시선 유도
-여기 나열된 텍스트의 질감을 느껴보세요. 딱딱한 정보처럼 보이지만, 그 행간에는 제작자의 뜨거운 숨결이 녹아있습니다. [Pause] 그 고독한 흔적을 시선으로 따라가 보시길 바랍니다.
-
-# 지식
-오르세의 감성으로 이 ${topic}을 바라본다면, 우리는 그 안에 숨겨진 색채를 발견할 수 있습니다. **[체크 필요: 역사적 증언 고증]** 비록 지금은 차가운 텍스트로 보일지라도, AI의 지식으로 보완해 본 결과 이곳엔 희망이라는 붓터치가 숨겨져 있었네요.
-
-# 마무리
-여러분의 시선이 머문 곳마다 따뜻한 위로가 깃들기를 바랍니다. [Pause] 이제 더 깊은 심연으로, 다음 이야기를 찾아 떠나볼까요?`,
-
-                florence: `[BGM: 웅장하고 긴장감 넘치는 오케스트라]
-
-# 도입
-철저한 고증과 수치로 무장한 ${topic}의 세계에 오신 것을 환영합니다. [Pause] 대리석의 질감보다 더 차가운, 그러나 완벽한 데이터의 정수를 지금 공개합니다.
-
-# 시선 유도
-좌표 x, y축이 만나는 지점의 비율을 확인하십시오. 소스 데이터에서 명시한 그 물리적 수치가 실제 시각적 경험과 어떻게 결합되는지 분석할 시간입니다. [Pause] 디테일의 경이로움을 목격하십시오.
-
-# 지식
-이 ${topic}의 구성 성분은 당시 기술로서는 불가능에 가까운 도전이었습니다. **[체크 필요: 물리적 재료의 현대적 성분 분석 데이터]** 피렌체 거장들이 추구했던 '완벽한 조화'가 이 파편화된 정보들 속에서도 면밀히 관찰됩니다. 
-
-# 마무리
-데이터가 말하는 진실에 귀를 기울여 보셨나요? [Pause] 다음 관람 구역은 이보다 더욱 정교한 완성도를 자랑하는 세기의 걸작입니다.`
-            };
-
-            const selectedScript = mockScripts[currentStyle] || mockScripts['louvre'];
-            const formattedScript = selectedScript
+            // Format markers for display
+            const formattedScript = aiText
+                .replace(/\n/g, '<br>')
                 .replace(/\[BGM: (.*?)\]/g, '<span class="bgm-tag">[BGM: $1]</span>')
                 .replace(/\[Pause\]/g, '<span class="pause-tag">Pause</span>')
-                .replace(/\[체크 필요: (.*?)\]/g, '<span class="check-needed">[체크 필요: $1]</span>');
+                .replace(/\[체크 필요\]/g, '<span class="check-needed">[체크 필요]</span>');
 
-            aiOutput.innerHTML = formattedScript;
+            aiOutput.innerHTML = `<div class="script-content">${formattedScript}</div>`;
+            aiOutput.focus();
+
+        } catch (error) {
+            console.error('AI Generation error:', error);
+            aiOutput.innerHTML = `<div class="placeholder" style="color:var(--error-color)">AI 생성 실패: ${error.message}</div>`;
+        } finally {
             generateBtn.disabled = false;
             generateBtn.innerHTML = '<i data-lucide="sparkles"></i> Generate Vibe Script';
             lucide.createIcons();
-            aiOutput.focus();
-        }, 1800);
+        }
     });
 
     // Publish Button Action
     publishBtn.addEventListener('click', () => {
+        if (aiOutput.innerText.includes('표시됩니다')) {
+            alert('먼저 대본을 생성해 주세요.');
+            return;
+        }
         publishBtn.innerHTML = '<i data-lucide="loader-2" class="spin"></i> Publishing...';
         lucide.createIcons();
         setTimeout(() => {
