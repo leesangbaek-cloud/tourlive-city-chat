@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vibe Writer | TourLive AI Docent Editor</title>
+    <link rel="stylesheet" href="style.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body>
+    <div class="app-container">
+        <header class="main-header">
+            <div class="logo">
+                <span class="logo-icon">✨</span>
+                <h1>Vibe Writer <span class="version">v1.5</span></h1>
+            </div>
+            <nav class="header-nav">
+                <button class="btn-icon" title="Settings"><i data-lucide="settings"></i></button>
+                <div class="user-profile">
+                    <span class="user-name">TourLive Hackathon</span>
+                    <div class="avatar">TL</div>
+                </div>
+            </nav>
+        </header>
+
+        <main class="dashboard">
+            <section class="panel input-panel">
+                <div class="panel-header">
+                    <h2><i data-lucide="database"></i> Source & Context</h2>
+                    <div class="mode-badges">
+                        <span class="badge active" id="mode-badge">AI Knowledge Enabled</span>
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <label>Reference Source</label>
+                    <div class="url-input-wrapper">
+                        <input type="text" id="source-url" placeholder="https://..." class="input-field">
+                        <button id="fetch-url" class="btn-secondary">Crawl</button>
+                    </div>
+                </div>
+
+                <div class="setting-group flex-grow">
+                    <label>Source Notes / Text</label>
+                    <textarea id="source-text" placeholder="가이드님의 메모나 참고 자료를 붙여넣으세요..."
+                        class="input-field textarea"></textarea>
+                </div>
+
+                <div class="setting-group">
+                    <label>3-Museum Style Mixer</label>
+                    <div class="style-selector">
+                        <button class="style-btn active" data-style="louvre">
+                            <span class="style-title">루브르</span>
+                            <span class="style-desc">참여 & 위트</span>
+                        </button>
+                        <button class="style-btn" data-style="orsay">
+                            <span class="style-title">오르세</span>
+                            <span class="style-desc">감성 & 채색</span>
+                        </button>
+                        <button class="style-btn" data-style="florence">
+                            <span class="style-title">피렌체</span>
+                            <span class="style-desc">디테일 & 긴장</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <label>Generation Mode</label>
+                    <div class="mode-selector">
+                        <select id="gen-mode" class="input-field select">
+                            <option value="faithful">데이터 충실 모드 (Source Only)</option>
+                            <option value="hybrid" selected>하이브리드 모드 (Source + AI)</option>
+                            <option value="zero">제로-베이스 모드 (AI Only)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="panel-footer">
+                    <button id="generate-btn" class="btn-primary">
+                        <i data-lucide="sparkles"></i> Generate Vibe Script
+                    </button>
+                </div>
+            </section>
+
+            <section class="panel editor-panel">
+                <div class="panel-header">
+                    <h2><i data-lucide="file-text"></i> AI Docent Script</h2>
+                    <div class="editor-actions">
+                        <span class="fact-check-status" id="fact-status">
+                            <i data-lucide="shield-check"></i> Fact-Checked
+                        </span>
+                    </div>
+                </div>
+
+                <div class="editor-container">
+                    <div id="ai-output" class="output-content" contenteditable="true">
+                        <div class="placeholder">
+                            대본이 생성되면 이곳에 표시됩니다. 생성 버튼을 눌러주세요.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-footer">
+                    <div class="footer-left">
+                        <button class="btn-ghost"><i data-lucide="volume-2"></i> BGM Recommend</button>
+                        <button class="btn-ghost"><i data-lucide="copy"></i> Copy</button>
+                    </div>
+                    <div class="footer-right">
+                        <button id="publish-btn" class="btn-success">
+                            <i data-lucide="send"></i> Publish to CMS
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="app.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>
