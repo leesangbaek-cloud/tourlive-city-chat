@@ -2,10 +2,10 @@
 
 document.addEventListener('DOMContentLoaded', () => {
     // API Configuration
-    // In a production environment like Vercel, it is better to inject this via env vars.
-    // For this client-side demo, we use the provided key as a default.
-    const GEMINI_API_KEY = window.ENV_GEMINI_API_KEY || 'AIzaSyDAI1IRVeFhMxEyjmqKJqIbVvefFclHsIQ';
-    const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent';
+    // Note: Vercel Env Vars are NOT visible in client-side JS (app.js) unless you use a build tool.
+    // For this hackathon, we will use the hardcoded key as it is a pure static site.
+    const GEMINI_API_KEY = 'AIzaSyDAI1IRVeFhMxEyjmqKJqIbVvefFclHsIQ';
+    const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
 
     // Elements
     const styleButtons = document.querySelectorAll('.style-btn');
